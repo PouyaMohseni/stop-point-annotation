@@ -15,35 +15,34 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
-.wrap{max-width:900px;margin:0 auto;padding:32px 20px 80px}
-.topbar{display:flex;align-items:baseline;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:28px}
+.wrap{max-width:960px;margin:0 auto;padding:28px 20px 60px}
+.topbar{display:flex;align-items:baseline;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:24px}
 .brand{font-family:var(--serif);font-size:18px}.brand span{color:var(--red)}
 .who{font-family:var(--mono);font-size:12px;color:var(--soft)}
 h1{font-family:var(--serif);font-size:26px;font-weight:600;line-height:1.2;margin-bottom:.5em}
-h2{font-family:var(--serif);font-size:19px;font-weight:600;margin:1.6em 0 .4em}
-p{margin:.5em 0}
-.muted{color:var(--soft)}
+h2{font-family:var(--serif);font-size:18px;font-weight:600;margin:1.2em 0 .4em}
+p{margin:.5em 0}.muted{color:var(--soft);font-size:13px}
 .card{background:var(--paper2);border:1px solid var(--line);border-radius:10px;padding:22px 24px}
 .stack>*+*{margin-top:14px}
 label.lbl{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--soft);margin-bottom:5px}
-input[type=text]{width:100%;font-family:var(--mono);font-size:14px;padding:10px 12px;border:1px solid var(--line);border-radius:7px;background:var(--paper);color:var(--ink)}
-input[type=text]:focus{outline:2px solid var(--red2);border-color:var(--red)}
+input[type=text],textarea{width:100%;font-family:var(--mono);font-size:13px;padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:var(--paper);color:var(--ink);resize:vertical}
+input[type=text]:focus,textarea:focus{outline:2px solid var(--red2);border-color:var(--red)}
 .btn{font-family:var(--sans);font-weight:500;font-size:14px;cursor:pointer;border:1px solid var(--ink);background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:7px;transition:opacity .12s}
 .btn:hover{opacity:.88}.btn:active{opacity:.75}.btn:disabled{opacity:.35;cursor:not-allowed}
 .btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
 .btn.ghost:hover{border-color:var(--ink)}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-/* welcome */
-.defn{font-family:var(--serif);font-size:17px;border-left:3px solid var(--red);padding-left:14px;line-height:1.65;color:var(--ink)}
-.taglist{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;margin-top:8px}
-.tagdef{border:1px solid var(--line);border-radius:8px;padding:9px 12px;background:var(--paper);font-size:13px}
-.tagdef b{display:block;margin-bottom:2px}
-.tagdef span{color:var(--soft)}
 kbd{font-family:var(--mono);font-size:11px;background:var(--paper);border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:1px 5px}
 hr.div{border:none;border-top:1px solid var(--line);margin:16px 0}
+/* welcome */
+.defn{font-family:var(--serif);font-size:17px;border-left:3px solid var(--red);padding-left:14px;line-height:1.65}
+.taglist{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:7px;margin-top:8px}
+.tagdef{border:1px solid var(--line);border-radius:8px;padding:8px 11px;background:var(--paper);font-size:13px}
+.tagdef b{display:block;margin-bottom:2px}.tagdef span{color:var(--soft);font-size:12px}
+.cite{font-size:11px;color:var(--soft);font-style:italic;margin-top:6px}
 /* dashboard */
 .prog{font-family:var(--mono);font-size:12px;color:var(--soft);margin:4px 0 18px}
-.piece-block{margin-bottom:22px}
+.piece-block{margin-bottom:20px}
 .piece-label{font-family:var(--serif);font-size:16px;font-weight:600;border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:8px}
 .plist{display:flex;flex-direction:column;gap:6px}
 .prow{display:grid;grid-template-columns:1fr 90px;gap:12px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:10px 13px;background:var(--paper2);cursor:pointer;transition:border-color .1s}
@@ -52,34 +51,48 @@ hr.div{border:none;border-top:1px solid var(--line);margin:16px 0}
 .prow .sub{font-family:var(--mono);font-size:11px;color:var(--soft);margin-top:2px}
 .st{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.04em;text-align:right}
 .st.todo{color:var(--soft)}.st.active{color:var(--red)}.st.done{color:var(--green)}
-/* workspace */
-.wshead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
-.score-wrap{border:1px solid var(--line);border-radius:10px;background:#fbf8f1;overflow:auto;max-height:48vh;display:flex;align-items:flex-start;justify-content:center;padding:12px;margin-bottom:12px}
-.score-wrap img{max-width:100%;height:auto;display:block}
-.score-missing{color:var(--soft);font-family:var(--mono);font-size:12px;padding:30px;text-align:center}
+/* workspace two-col */
+.ws-layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+.score-col{position:sticky;top:16px;max-height:92vh;overflow-y:auto}
+.score-col img{width:100%;display:block;border:1px solid var(--line);border-radius:6px;background:#fbf8f1}
+.score-col img+img{margin-top:6px}
+.score-missing{color:var(--soft);font-family:var(--mono);font-size:12px;padding:20px;text-align:center;border:1px solid var(--line);border-radius:6px}
+.right-col{display:flex;flex-direction:column;gap:10px}
+.wshead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+/* taxonomy bar */
+.taxbar{background:var(--paper2);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:12px}
+.taxbar b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--soft);margin-bottom:5px}
+.taxpills{display:flex;gap:5px;flex-wrap:wrap}
+.taxpill{font-family:var(--mono);font-size:10px;background:var(--paper);border:1px solid var(--line);color:var(--soft);padding:2px 7px;border-radius:999px}
 /* transport */
-.transport{position:sticky;bottom:0;background:var(--paper2);border:1px solid var(--line);border-radius:10px;box-shadow:0 -2px 18px -8px rgba(35,32,27,.18);padding:14px 16px}
-.clock{font-family:var(--mono);font-size:24px;letter-spacing:1px;font-variant-numeric:tabular-nums}
-.clock .tot{font-size:13px;color:var(--soft)}
-.meter{height:5px;background:var(--paper);border-radius:999px;margin:10px 0;border:1px solid var(--line);overflow:hidden}
-.fill{height:100%;width:0;background:linear-gradient(90deg,var(--red),#e06a52);transition:width .12s linear}
-.markbtn{font-family:var(--sans);font-weight:600;font-size:16px;cursor:pointer;background:var(--red);color:#fff;border:none;border-radius:9px;padding:13px 20px;box-shadow:0 4px 14px -6px rgba(200,65,43,.65);transition:transform .05s}
-.markbtn:active{transform:scale(.96)}.markbtn:disabled{opacity:.38;cursor:not-allowed;box-shadow:none}
+.transport{background:var(--paper2);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.clock{font-family:var(--mono);font-size:22px;letter-spacing:1px;font-variant-numeric:tabular-nums}
+.clock .tot{font-size:12px;color:var(--soft)}
+.meter{height:5px;background:var(--paper);border-radius:999px;margin:10px 0;border:1px solid var(--line);overflow:hidden;cursor:pointer}
+.fill{height:100%;width:0;background:linear-gradient(90deg,var(--red),#e06a52)}
+.markbtn{font-family:var(--sans);font-weight:600;font-size:15px;cursor:pointer;background:var(--red);color:#fff;border:none;border-radius:9px;padding:12px 18px;box-shadow:0 4px 14px -6px rgba(200,65,43,.65);transition:transform .05s;width:100%;margin-top:8px}
+.markbtn:active{transform:scale(.97)}.markbtn:disabled{opacity:.38;cursor:not-allowed;box-shadow:none}
 .chips{display:flex;gap:5px;flex-wrap:wrap;min-height:18px;margin-top:8px}
 .chip{font-family:var(--mono);font-size:11px;background:var(--paper);border:1px solid var(--red2);color:var(--red);padding:2px 7px;border-radius:5px}
-.hint{font-family:var(--mono);font-size:11px;color:var(--soft);margin-top:6px}
+.hint{font-family:var(--mono);font-size:11px;color:var(--soft);margin-top:5px}
 /* tagging */
-.mrow{display:grid;grid-template-columns:76px 1fr auto;gap:11px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:9px 11px;background:var(--paper2)}
+.mrow{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--paper2);display:flex;flex-direction:column;gap:8px}
 .mrow.del{opacity:.38}
-.mtime{font-family:var(--mono);font-size:15px;font-variant-numeric:tabular-nums}
-.tagbtns{display:flex;gap:5px;flex-wrap:wrap}
-.tbtn{font-size:12px;cursor:pointer;border:1px solid var(--line);background:var(--paper);color:var(--soft);padding:5px 10px;border-radius:999px;font-family:var(--sans);transition:background .1s}
+.mrow-top{display:flex;align-items:center;gap:10px}
+.mtime{font-family:var(--mono);font-size:15px;font-variant-numeric:tabular-nums;min-width:70px}
+.tagbtns{display:flex;gap:4px;flex-wrap:wrap;flex:1}
+.tbtn{font-size:11px;cursor:pointer;border:1px solid var(--line);background:var(--paper);color:var(--soft);padding:4px 9px;border-radius:999px;font-family:var(--sans)}
 .tbtn.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-.sbtn{font-family:var(--mono);font-size:11px;cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--soft);padding:5px 8px;border-radius:6px}
+.mrow-ctx{display:flex;align-items:center;gap:6px}
+.sbtn{font-family:var(--mono);font-size:11px;cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--soft);padding:4px 8px;border-radius:6px}
 .sbtn:hover{border-color:var(--ink);color:var(--ink)}
-.banner{border:1px dashed var(--red);background:#f7e9e5;border-radius:8px;padding:10px 13px;font-size:13px;margin-bottom:10px}
-audio{width:100%;margin-top:8px;border-radius:6px}
-.footnote{margin-top:32px;font-size:12px;color:var(--soft);border-top:1px solid var(--line);padding-top:12px}
+.ctx-bar{display:flex;align-items:center;gap:6px;background:var(--paper);border:1px solid var(--line);border-radius:7px;padding:6px 10px;margin-top:4px}
+.ctx-bar .clock2{font-family:var(--mono);font-size:13px;min-width:60px}
+.ctx-meter{flex:1;height:4px;background:var(--line);border-radius:999px;overflow:hidden;cursor:pointer}
+.ctx-fill{height:100%;width:0;background:var(--red)}
+.other-note{margin-top:4px}
+.banner{border:1px dashed var(--red);background:#f7e9e5;border-radius:8px;padding:10px 13px;font-size:13px}
+.footnote{margin-top:28px;font-size:12px;color:var(--soft);border-top:1px solid var(--line);padding-top:12px}
 </style>
 </head>
 <body>
@@ -89,132 +102,104 @@ audio{width:100%;margin-top:8px;border-radius:6px}
     <div class="who" id="whoLabel"></div>
   </div>
   <div id="app"></div>
-  <div class="footnote">Progress is saved automatically in this browser. Export before closing — nothing is sent anywhere automatically.</div>
+  <div class="footnote">Progress saves automatically. Export before closing.</div>
 </div>
 <script>
-const PERFORMANCES = [
-  {id:"P01_R10",piece:"Careless Love",piece_id:1,recording_number:10,audioUrl:"audio/P01_R10.wav",scoreUrl:"scores/Careless_Love.png"},
-  {id:"P01_R07",piece:"Careless Love",piece_id:1,recording_number:7, audioUrl:"audio/P01_R07.wav",scoreUrl:"scores/Careless_Love.png"},
-  {id:"P01_R01",piece:"Careless Love",piece_id:1,recording_number:1, audioUrl:"audio/P01_R01.wav",scoreUrl:"scores/Careless_Love.png"},
-  {id:"P02_R01",piece:"Cielito Lindo",piece_id:2,recording_number:1, audioUrl:"audio/P02_R01.wav",scoreUrl:"scores/Cielito_Lindo.png"},
-  {id:"P02_R06",piece:"Cielito Lindo",piece_id:2,recording_number:6, audioUrl:"audio/P02_R06.wav",scoreUrl:"scores/Cielito_Lindo.png"},
-  {id:"P02_R02",piece:"Cielito Lindo",piece_id:2,recording_number:2, audioUrl:"audio/P02_R02.wav",scoreUrl:"scores/Cielito_Lindo.png"},
-  {id:"P03_R14",piece:"Lavender's Blue",piece_id:3,recording_number:14,audioUrl:"audio/P03_R14.wav",scoreUrl:"scores/Lavenders_Blue.png"},
-  {id:"P03_R09",piece:"Lavender's Blue",piece_id:3,recording_number:9, audioUrl:"audio/P03_R09.wav",scoreUrl:"scores/Lavenders_Blue.png"},
-  {id:"P03_R16",piece:"Lavender's Blue",piece_id:3,recording_number:16,audioUrl:"audio/P03_R16.wav",scoreUrl:"scores/Lavenders_Blue.png"},
-  {id:"P04_R08",piece:"Over the Waves",piece_id:4,recording_number:8, audioUrl:"audio/P04_R08.wav",scoreUrl:"scores/Over_the_Waves.png"},
-  {id:"P04_R06",piece:"Over the Waves",piece_id:4,recording_number:6, audioUrl:"audio/P04_R06.wav",scoreUrl:"scores/Over_the_Waves.png"},
-  {id:"P04_R09",piece:"Over the Waves",piece_id:4,recording_number:9, audioUrl:"audio/P04_R09.wav",scoreUrl:"scores/Over_the_Waves.png"},
-  {id:"P05_R10",piece:"She Wore a Yellow Ribbon",piece_id:5,recording_number:10,audioUrl:"audio/P05_R10.wav",scoreUrl:"scores/She_Wore_a_Yellow_Ribbon.png"},
-  {id:"P05_R07",piece:"She Wore a Yellow Ribbon",piece_id:5,recording_number:7, audioUrl:"audio/P05_R07.wav",scoreUrl:"scores/She_Wore_a_Yellow_Ribbon.png"},
-  {id:"P05_R12",piece:"She Wore a Yellow Ribbon",piece_id:5,recording_number:12,audioUrl:"audio/P05_R12.wav",scoreUrl:"scores/She_Wore_a_Yellow_Ribbon.png"},
-  {id:"P06_R08",piece:"The Blues",piece_id:6,recording_number:8, audioUrl:"audio/P06_R08.wav",scoreUrl:"scores/The_Blues.png"},
-  {id:"P06_R11",piece:"The Blues",piece_id:6,recording_number:11,audioUrl:"audio/P06_R11.wav",scoreUrl:"scores/The_Blues.png"},
-  {id:"P06_R17",piece:"The Blues",piece_id:6,recording_number:17,audioUrl:"audio/P06_R17.wav",scoreUrl:"scores/The_Blues.png"},
-  {id:"P07_R04",piece:"The Entertainer",piece_id:7,recording_number:4, audioUrl:"audio/P07_R04.wav",scoreUrl:"scores/The_Entertainer.png"},
-  {id:"P07_R08",piece:"The Entertainer",piece_id:7,recording_number:8, audioUrl:"audio/P07_R08.wav",scoreUrl:"scores/The_Entertainer.png"},
-  {id:"P07_R01",piece:"The Entertainer",piece_id:7,recording_number:1, audioUrl:"audio/P07_R01.wav",scoreUrl:"scores/The_Entertainer.png"},
-];
-
+/* ── Taxonomy (Morsi et al., SMC 2024 + Palmer & van de Sande 1993) ── */
 const TAGS = [
-  {k:"notes",     l:"Notes",          d:"Wrong or missing notes, pitch errors"},
-  {k:"rhythm",    l:"Rhythm",         d:"Timing, tempo, rhythmic accuracy"},
-  {k:"dynamics",  l:"Dynamics",       d:"Loudness, balance, volume"},
-  {k:"technique", l:"Technique",      d:"Fingering, evenness, control"},
-  {k:"interp",    l:"Interpretation", d:"Phrasing, musicality, style"},
-  {k:"other",     l:"Other",          d:"Anything not covered above"}
+  {k:"pitch",     l:"Pitch",          d:"Wrong, missing, or extra notes (insertions / deletions / substitutions)"},
+  {k:"rhythm",    l:"Rhythm",         d:"Timing errors, tempo instability, hesitation, rhythmic inaccuracy"},
+  {k:"dynamics",  l:"Dynamics",       d:"Velocity / loudness errors, balance issues"},
+  {k:"structure", l:"Structure",      d:"Repetition, loss of place, beat interruption, stopping mid-phrase"},
+  {k:"technique", l:"Technique",      d:"Fingering, evenness, articulation, physical control"},
+  {k:"interp",    l:"Interpretation", d:"Phrasing, style, musical expression beyond notation"},
+  {k:"other",     l:"Other",          d:""}
+];
+const TAX_CITE = "Taxonomy adapted from Morsi et al. (SMC 2024) and Palmer & van de Sande (1993).";
+
+const SCORES = {
+  1: ["scores/CarelessLove-1.png","scores/CarelessLove-2.png"],
+  2: ["scores/CielitoLindo-1.png"],
+  3: ["scores/LavendersBlue-1.png","scores/LavendersBlue-2.png"],
+  4: ["scores/OverTheWaves-1.png","scores/OverTheWaves-2.png"],
+  5: ["scores/SheWoreAYellowRibbon-1.png","scores/SheWoreAYellowRibbon-2.png"],
+  6: ["scores/TheBlues-1.png"],
+  7: ["scores/TheEntertainer-1.png","scores/TheEntertainer-2.png"],
+};
+
+const PERFORMANCES = [
+  {id:"P01_R10",piece:"Careless Love",piece_id:1,recording_number:10,audioUrl:"audio/P01_R10.wav"},
+  {id:"P01_R07",piece:"Careless Love",piece_id:1,recording_number:7, audioUrl:"audio/P01_R07.wav"},
+  {id:"P01_R01",piece:"Careless Love",piece_id:1,recording_number:1, audioUrl:"audio/P01_R01.wav"},
+  {id:"P02_R01",piece:"Cielito Lindo",piece_id:2,recording_number:1, audioUrl:"audio/P02_R01.wav"},
+  {id:"P02_R06",piece:"Cielito Lindo",piece_id:2,recording_number:6, audioUrl:"audio/P02_R06.wav"},
+  {id:"P02_R02",piece:"Cielito Lindo",piece_id:2,recording_number:2, audioUrl:"audio/P02_R02.wav"},
+  {id:"P03_R14",piece:"Lavender's Blue",piece_id:3,recording_number:14,audioUrl:"audio/P03_R14.wav"},
+  {id:"P03_R09",piece:"Lavender's Blue",piece_id:3,recording_number:9, audioUrl:"audio/P03_R09.wav"},
+  {id:"P03_R16",piece:"Lavender's Blue",piece_id:3,recording_number:16,audioUrl:"audio/P03_R16.wav"},
+  {id:"P04_R08",piece:"Over the Waves",piece_id:4,recording_number:8, audioUrl:"audio/P04_R08.wav"},
+  {id:"P04_R06",piece:"Over the Waves",piece_id:4,recording_number:6, audioUrl:"audio/P04_R06.wav"},
+  {id:"P04_R09",piece:"Over the Waves",piece_id:4,recording_number:9, audioUrl:"audio/P04_R09.wav"},
+  {id:"P05_R10",piece:"She Wore a Yellow Ribbon",piece_id:5,recording_number:10,audioUrl:"audio/P05_R10.wav"},
+  {id:"P05_R07",piece:"She Wore a Yellow Ribbon",piece_id:5,recording_number:7, audioUrl:"audio/P05_R07.wav"},
+  {id:"P05_R12",piece:"She Wore a Yellow Ribbon",piece_id:5,recording_number:12,audioUrl:"audio/P05_R12.wav"},
+  {id:"P06_R08",piece:"The Blues",piece_id:6,recording_number:8, audioUrl:"audio/P06_R08.wav"},
+  {id:"P06_R11",piece:"The Blues",piece_id:6,recording_number:11,audioUrl:"audio/P06_R11.wav"},
+  {id:"P06_R17",piece:"The Blues",piece_id:6,recording_number:17,audioUrl:"audio/P06_R17.wav"},
+  {id:"P07_R04",piece:"The Entertainer",piece_id:7,recording_number:4, audioUrl:"audio/P07_R04.wav"},
+  {id:"P07_R08",piece:"The Entertainer",piece_id:7,recording_number:8, audioUrl:"audio/P07_R08.wav"},
+  {id:"P07_R01",piece:"The Entertainer",piece_id:7,recording_number:1, audioUrl:"audio/P07_R01.wav"},
 ];
 
-const CACHE_KEY = "stoppoint_v3";
+const CACHE_KEY="stoppoint_v5";
+let S={annotatorId:"",screen:"welcome",currentId:null,data:{},ws:null};
+PERFORMANCES.forEach(p=>{S.data[p.id]={done:false,marks:[]};});
 
-let S = {
-  annotatorId: "",
-  screen: "welcome",
-  currentId: null,
-  data: {},
-  ws: null
-};
-PERFORMANCES.forEach(p => { S.data[p.id] = {done:false, clean:false, marks:[]}; });
-
-function saveCache(){
-  try{ localStorage.setItem(CACHE_KEY, JSON.stringify({annotatorId:S.annotatorId, data:S.data})); }catch(e){}
-}
-function loadCache(){
-  try{
-    const c = JSON.parse(localStorage.getItem(CACHE_KEY)||"null");
-    if(!c) return;
-    if(c.annotatorId) S.annotatorId = c.annotatorId;
-    if(c.data) Object.keys(c.data).forEach(k=>{ if(S.data[k]) S.data[k]=c.data[k]; });
-  }catch(e){}
-}
+function saveCache(){try{localStorage.setItem(CACHE_KEY,JSON.stringify({annotatorId:S.annotatorId,data:S.data}));}catch(e){}}
+function loadCache(){try{const c=JSON.parse(localStorage.getItem(CACHE_KEY)||"null");if(!c)return;if(c.annotatorId)S.annotatorId=c.annotatorId;if(c.data)Object.keys(c.data).forEach(k=>{if(S.data[k])S.data[k]=c.data[k];});}catch(e){}}
 loadCache();
 
-const app = document.getElementById("app");
-const whoLabel = document.getElementById("whoLabel");
-const fmt = t => {
-  if(t==null||isNaN(t)) return "--:--";
-  const m=Math.floor(t/60),s=t-m*60;
-  return String(m).padStart(2,"0")+":"+s.toFixed(2).padStart(5,"0");
-};
-const perf = id => PERFORMANCES.find(p=>p.id===id);
+const app=document.getElementById("app"),whoLabel=document.getElementById("whoLabel");
+const fmt=t=>{if(t==null||isNaN(t))return"--:--";const m=Math.floor(t/60),s=t-m*60;return String(m).padStart(2,"0")+":"+s.toFixed(2).padStart(5,"0");};
+const perf=id=>PERFORMANCES.find(p=>p.id===id);
 
 function render(){
-  whoLabel.textContent = S.annotatorId ? "annotator: "+S.annotatorId : "";
-  if(S.screen==="welcome") renderWelcome();
-  else if(S.screen==="dashboard") renderDashboard();
-  else if(S.screen==="workspace") renderWorkspace();
+  whoLabel.textContent=S.annotatorId?"annotator: "+S.annotatorId:"";
+  if(S.screen==="welcome")renderWelcome();
+  else if(S.screen==="dashboard")renderDashboard();
+  else if(S.screen==="workspace")renderWorkspace();
 }
 
-/* ---- WELCOME ---- */
+/* ── WELCOME ── */
 function renderWelcome(){
-  app.innerHTML = `
-    <h1>Teacher Intervention Annotation</h1>
-    <div class="card stack">
-      <div>
-        <p>You will listen to <b>21 beginner piano performances</b> across 7 pieces (3 performances per piece).
-        The performances vary in quality — some are weak, some are strong.</p>
-        <p style="margin-top:8px">Your task:</p>
-        <div class="defn" style="margin-top:10px">
-          As you listen, mark the moment you would <b>stop the student</b> to give corrective
-          feedback — only stops you would actually make in a real lesson.
-        </div>
-        <p class="muted" style="margin-top:10px">
-          Each performance is a <b>single real-time listen with no rewind or pause</b>, matching
-          how a teacher hears a student live. Press <kbd>S</kbd> or the MARK button at the
-          exact moment you would interrupt. When the recording ends, you tag each mark with a
-          reason. If a performance needs no intervention at all, you can say so.
-        </p>
-      </div>
-      <div>
-        <div class="lbl">Reason tags</div>
-        <div class="taglist">
-          ${TAGS.map(t=>`<div class="tagdef"><b>${t.l}</b><span>${t.d}</span></div>`).join("")}
-        </div>
-      </div>
-      <hr class="div">
-      <div>
-        <label class="lbl" for="aid">Your name or initials</label>
-        <input id="aid" type="text" placeholder="e.g. AM" value="${S.annotatorId}" autocomplete="off">
-      </div>
-      <div class="row" style="margin-top:4px">
-        <button class="btn" id="startBtn">Go to performances</button>
-      </div>
-    </div>`;
-  const btn=document.getElementById("startBtn"), inp=document.getElementById("aid");
-  btn.onclick=()=>{ const v=inp.value.trim(); if(!v){inp.focus();return;} S.annotatorId=v; saveCache(); S.screen="dashboard"; render(); };
-  inp.addEventListener("keydown",e=>{ if(e.key==="Enter") btn.click(); });
+  app.innerHTML=`<h1>Teacher Intervention Annotation</h1>
+  <div class="card stack">
+    <p>You will listen to <b>21 beginner piano performances</b> across 7 pieces (3 per piece). Your task:</p>
+    <div class="defn">As you listen, mark the moment you would <b>stop the student</b> to give corrective feedback — only stops you would actually make in a real lesson.</div>
+    <p class="muted">Each performance is a <b>single real-time listen with no rewind</b>. Press <kbd>S</kbd> or MARK at the exact moment you would interrupt. When it ends, tag each mark with one or more reasons.</p>
+    <div>
+      <div class="lbl">Error taxonomy</div>
+      <div class="taglist">${TAGS.map(t=>`<div class="tagdef"><b>${t.l}</b><span>${t.d}</span></div>`).join("")}</div>
+      <div class="cite">${TAX_CITE}</div>
+    </div>
+    <hr class="div">
+    <div>
+      <label class="lbl" for="aid">Your name or initials</label>
+      <input id="aid" type="text" placeholder="e.g. AM" value="${S.annotatorId}" autocomplete="off">
+    </div>
+    <div class="row" style="margin-top:4px"><button class="btn" id="startBtn">Go to performances</button></div>
+  </div>`;
+  const btn=document.getElementById("startBtn"),inp=document.getElementById("aid");
+  btn.onclick=()=>{const v=inp.value.trim();if(!v){inp.focus();return;}S.annotatorId=v;saveCache();S.screen="dashboard";render();};
+  inp.addEventListener("keydown",e=>{if(e.key==="Enter")btn.click();});
 }
 
-/* ---- DASHBOARD ---- */
+/* ── DASHBOARD ── */
 function statusOf(id){
   const d=S.data[id];
-  if(d.clean) return {cls:"done",txt:"clean ✓"};
-  if(d.done){
-    return d.marks.filter(m=>!m.deleted&&!m.tag).length ? {cls:"active",txt:"needs tags"} : {cls:"done",txt:"done ✓"};
-  }
-  return {cls:"todo",txt:"not started"};
+  if(d.done)return d.marks.filter(m=>!m.deleted&&!m.tags.length).length?{cls:"active",txt:"needs tags"}:{cls:"done",txt:"done ✓"};
+  return{cls:"todo",txt:"not started"};
 }
-
 function renderDashboard(){
   const done=PERFORMANCES.filter(p=>statusOf(p.id).cls==="done").length;
   const pieces=[...new Set(PERFORMANCES.map(p=>p.piece_id))];
@@ -223,207 +208,216 @@ function renderDashboard(){
     const group=PERFORMANCES.filter(p=>p.piece_id===pid);
     html+=`<div class="piece-block"><div class="piece-label">${group[0].piece}</div><div class="plist">`;
     group.forEach((p,i)=>{
-      const st=statusOf(p.id);
-      const nm=S.data[p.id].marks.filter(m=>!m.deleted).length;
-      html+=`<div class="prow" data-id="${p.id}">
-        <div>
-          <div class="title">Performance ${i+1}</div>
-          <div class="sub">${nm ? nm+" stop"+(nm>1?"s":"")+" marked" : "—"}</div>
-        </div>
-        <div class="st ${st.cls}">${st.txt}</div>
-      </div>`;
+      const st=statusOf(p.id),nm=S.data[p.id].marks.filter(m=>!m.deleted).length;
+      html+=`<div class="prow" data-id="${p.id}"><div><div class="title">Performance ${i+1}</div><div class="sub">${nm?nm+" stop"+(nm>1?"s":"")+" marked":"—"}</div></div><div class="st ${st.cls}">${st.txt}</div></div>`;
     });
     html+=`</div></div>`;
   });
-  html+=`<div class="row" style="margin-top:8px">
-    <button class="btn" id="exportBtn">Export annotations</button>
-    <span class="muted" style="font-size:12px">Exports JSON + CSV. Send both files back.</span>
-  </div>`;
+  html+=`<div class="row" style="margin-top:8px"><button class="btn" id="exportBtn">Export annotations</button><span class="muted">Send both JSON + CSV back.</span></div>`;
   app.innerHTML=html;
-  document.querySelectorAll(".prow").forEach(r=>r.onclick=()=>{ S.currentId=r.dataset.id; openWS(); });
+  document.querySelectorAll(".prow").forEach(r=>r.onclick=()=>{S.currentId=r.dataset.id;openWS();});
   document.getElementById("exportBtn").onclick=exportData;
 }
 
-/* ---- WORKSPACE ---- */
+/* ── WORKSPACE ── */
 function openWS(){
   S.screen="workspace";
   const d=S.data[S.currentId];
-  S.ws={phase:(d.done||d.clean)?"tag":"play",playing:false,liveMarks:[],audio:null,_key:null,_ctxStop:null};
+  S.ws={phase:d.done?"tag":"play",playing:false,liveMarks:[],audio:null,_key:null};
   render();
 }
 
+function taxBar(){
+  return `<div class="taxbar"><b>Error taxonomy</b><div class="taxpills">${TAGS.map(t=>`<span class="taxpill">${t.l}</span>`).join("")}</div></div>`;
+}
+
 function renderWorkspace(){
-  const id=S.currentId, p=perf(id), d=S.data[id];
-  // find position within piece for display
+  const id=S.currentId,p=perf(id),d=S.data[id];
   const group=PERFORMANCES.filter(q=>q.piece_id===p.piece_id);
   const pos=group.findIndex(q=>q.id===id)+1;
+  const pages=SCORES[p.piece_id]||[];
+  const scoreHtml=pages.length
+    ?pages.map(src=>`<img src="${src}" alt="score" onerror="this.style.display='none'">`).join("")
+    :`<div class="score-missing">Score not found</div>`;
 
   app.innerHTML=`
-    <div class="wshead">
-      <div>
-        <h1 style="margin-bottom:3px">${p.piece} — Performance ${pos}</h1>
-      </div>
-      <button class="btn ghost" id="backBtn">← back</button>
-    </div>
-    <div class="score-wrap">
-      <img src="${p.scoreUrl}" alt="score" onerror="this.parentNode.innerHTML='<div class=score-missing>Score image not found at ${p.scoreUrl}</div>'">
-    </div>
-    <div id="phaseArea"></div>`;
+  <div class="wshead">
+    <div><h1 style="margin-bottom:2px">${p.piece} — Performance ${pos}</h1></div>
+    <button class="btn ghost" id="backBtn">← back</button>
+  </div>
+  <div class="ws-layout">
+    <div class="score-col">${scoreHtml}</div>
+    <div class="right-col" id="rightCol">${taxBar()}</div>
+  </div>`;
 
-  document.getElementById("backBtn").onclick=()=>{ teardown(); S.screen="dashboard"; render(); };
-
-  if(S.ws.phase==="play") renderPlay(p.audioUrl);
+  document.getElementById("backBtn").onclick=()=>{teardown();S.screen="dashboard";render();};
+  if(S.ws.phase==="play")renderPlay(p.audioUrl);
   else renderTag(p.audioUrl);
 }
 
-/* ---- PLAY ---- */
+/* ── PLAY ── */
 function renderPlay(audioSrc){
-  const area=document.getElementById("phaseArea");
-  area.innerHTML=`
+  const col=document.getElementById("rightCol");
+  const existing=col.querySelector(".taxbar");
+  col.innerHTML=(existing?existing.outerHTML:taxBar())+`
     <div class="banner">Single real-time listen — no rewind. Press <kbd>S</kbd> or MARK at the moment you would stop the student.</div>
     <div class="transport">
-      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap">
-        <div class="clock"><span id="cur">00:00.00</span> <span class="tot">/ <span id="tot">--:--</span></span></div>
-        <div class="row" style="margin:0">
-          <button class="btn ghost" id="playBtn">▶ Start</button>
-          <button class="markbtn" id="markBtn" disabled>MARK STOP · S</button>
-        </div>
+      <div class="clock"><span id="cur">00:00.00</span> <span class="tot">/ <span id="tot">--:--</span></span></div>
+      <div class="meter" id="meter"><div class="fill" id="fill"></div></div>
+      <div class="row" style="gap:8px">
+        <button class="btn ghost" id="playBtn">▶ Start</button>
       </div>
-      <div class="meter"><div class="fill" id="fill"></div></div>
+      <button class="markbtn" id="markBtn" disabled>MARK STOP · S</button>
       <div class="chips" id="chips"></div>
       <div class="hint" id="phint">Press Start when ready.</div>
     </div>`;
 
-  const a=new Audio(audioSrc); a.preload="auto"; S.ws.audio=a;
+  const a=new Audio(audioSrc);a.preload="auto";S.ws.audio=a;
   const cur=document.getElementById("cur"),tot=document.getElementById("tot"),
         fill=document.getElementById("fill"),chips=document.getElementById("chips"),
         playBtn=document.getElementById("playBtn"),markBtn=document.getElementById("markBtn"),
         phint=document.getElementById("phint");
 
-  a.addEventListener("loadedmetadata",()=>{ tot.textContent=fmt(a.duration); });
-  a.addEventListener("timeupdate",()=>{
-    cur.textContent=fmt(a.currentTime);
-    if(a.duration) fill.style.width=(100*a.currentTime/a.duration)+"%";
-  });
-  a.addEventListener("error",()=>{ phint.textContent="Audio file not found at: "+audioSrc; playBtn.disabled=true; });
+  a.addEventListener("loadedmetadata",()=>{tot.textContent=fmt(a.duration);});
+  a.addEventListener("timeupdate",()=>{cur.textContent=fmt(a.currentTime);if(a.duration)fill.style.width=(100*a.currentTime/a.duration)+"%";});
+  a.addEventListener("error",()=>{phint.textContent="Audio not found: "+audioSrc;playBtn.disabled=true;});
 
-  const drawChips=()=>{ chips.innerHTML=S.ws.liveMarks.map(t=>`<span class="chip">${fmt(t)}</span>`).join(""); };
-  const doMark=()=>{
-    if(!S.ws.playing) return;
-    S.ws.liveMarks.push(+a.currentTime.toFixed(3));
-    drawChips();
-    markBtn.style.transform="scale(.93)"; setTimeout(()=>markBtn.style.transform="",80);
-  };
+  const drawChips=()=>{chips.innerHTML=S.ws.liveMarks.map(t=>`<span class="chip">${fmt(t)}</span>`).join("");};
+  const doMark=()=>{if(!S.ws.playing)return;S.ws.liveMarks.push(+a.currentTime.toFixed(3));drawChips();markBtn.style.transform="scale(.93)";setTimeout(()=>markBtn.style.transform="",80);};
 
-  playBtn.onclick=()=>{ a.play(); S.ws.playing=true; playBtn.disabled=true; playBtn.textContent="listening…"; markBtn.disabled=false; phint.textContent="No rewind. Mark as you go."; };
+  playBtn.onclick=()=>{a.play();S.ws.playing=true;playBtn.disabled=true;playBtn.textContent="listening…";markBtn.disabled=false;phint.textContent="No rewind. Mark as you go.";};
   markBtn.onclick=doMark;
-  const kh=e=>{ if(e.repeat) return; if(e.key==="s"||e.key==="S"||e.key==="Enter"){e.preventDefault();doMark();} };
-  document.addEventListener("keydown",kh); S.ws._key=kh;
+  const kh=e=>{if(e.repeat)return;if(e.key==="s"||e.key==="S"||e.key==="Enter"){e.preventDefault();doMark();}};
+  document.addEventListener("keydown",kh);S.ws._key=kh;
 
   a.addEventListener("ended",()=>{
-    S.ws.playing=false;
-    document.removeEventListener("keydown",kh);
+    S.ws.playing=false;document.removeEventListener("keydown",kh);
     const d=S.data[S.currentId];
-    d.marks=S.ws.liveMarks.map(t=>({t,tag:"",deleted:false}));
-    d.done=true; saveCache();
-    S.ws.phase="tag"; render();
+    d.marks=S.ws.liveMarks.map(t=>({t,tags:[],note:"",deleted:false}));
+    d.done=true;saveCache();S.ws.phase="tag";render();
   });
 }
 
-/* ---- TAG ---- */
+/* ── TAG ── */
 function renderTag(audioSrc){
-  const id=S.currentId, d=S.data[id];
-  const area=document.getElementById("phaseArea");
-
-  if(d.clean){
-    area.innerHTML=`
-      <div class="banner">Marked as <b>no intervention needed</b>.</div>
-      <div class="row" style="margin-top:10px">
-        <button class="btn ghost" id="undoClean">Undo</button>
-        <button class="btn" id="doneBtn">Done</button>
-      </div>`;
-    document.getElementById("undoClean").onclick=()=>{ d.clean=false; d.done=false; saveCache(); openWS(); };
-    document.getElementById("doneBtn").onclick=()=>{ teardown(); S.screen="dashboard"; render(); };
-    return;
-  }
-
+  const id=S.currentId,d=S.data[id];
+  const col=document.getElementById("rightCol");
   const marks=d.marks;
-  area.innerHTML=`
-    <h2>Label each stop</h2>
-    <p class="muted" style="margin-bottom:10px">Assign a reason tag to each mark. Use ▶ to hear 4 seconds of context. Delete a mark only if it was accidental.</p>
-    <audio id="ctx" src="${audioSrc}" controls></audio>
-    <div class="stack" id="mlist" style="margin-top:12px"></div>
-    <div class="row" style="margin-top:16px">
-      <button class="btn ghost" id="cleanBtn">No intervention needed for this performance</button>
+
+  // context audio player (shared, reused)
+  const ctxAudio=new Audio(audioSrc);
+  ctxAudio.preload="auto";
+
+  col.innerHTML=taxBar()+`
+    <h2 style="margin-top:0">Label each stop</h2>
+    <p class="muted">Select one or more reasons. ▶ plays from the previous stop (or start) to this mark. Use ◀▶ to scrub.</p>
+    <div style="display:flex;flex-direction:column;gap:8px" id="mlist"></div>
+    <div class="row" style="margin-top:14px">
       <button class="btn" id="doneBtn">Save &amp; back</button>
     </div>`;
 
-  const ctx=document.getElementById("ctx"), mlist=document.getElementById("mlist");
-  const draw=()=>{
-    if(!marks.length){ mlist.innerHTML=`<p class="muted">No stops were marked. If correct, use the button below.</p>`; return; }
-    mlist.innerHTML=marks.map((m,i)=>`
-      <div class="mrow ${m.deleted?"del":""}">
-        <div class="mtime">${fmt(m.t)}</div>
-        <div class="tagbtns">
-          ${TAGS.map(t=>`<button class="tbtn ${m.tag===t.k?"on":""}" data-t="${t.k}" data-i="${i}">${t.l}</button>`).join("")}
-        </div>
-        <div style="display:flex;gap:5px">
-          <button class="sbtn" data-play="${i}">▶</button>
+  const mlist=document.getElementById("mlist");
+
+  function draw(){
+    if(!marks.length){mlist.innerHTML=`<p class="muted">No stops marked.</p>`;return;}
+    mlist.innerHTML=marks.map((m,i)=>{
+      const prevT=i>0?marks.slice(0,i).filter(x=>!x.deleted).map(x=>x.t).pop()||0:0;
+      return `<div class="mrow ${m.deleted?"del":""}" data-i="${i}">
+        <div class="mrow-top">
+          <div class="mtime">${fmt(m.t)}</div>
+          <div class="tagbtns">
+            ${TAGS.map(t=>`<button class="tbtn ${m.tags.includes(t.k)?"on":""}" data-t="${t.k}" data-i="${i}">${t.l}</button>`).join("")}
+          </div>
           <button class="sbtn" data-del="${i}">${m.deleted?"restore":"del"}</button>
         </div>
-      </div>`).join("");
-    mlist.querySelectorAll(".tbtn").forEach(b=>b.onclick=()=>{ marks[+b.dataset.i].tag=b.dataset.t; saveCache(); draw(); });
-    mlist.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{ marks[+b.dataset.del].deleted=!marks[+b.dataset.del].deleted; saveCache(); draw(); });
-    mlist.querySelectorAll("[data-play]").forEach(b=>b.onclick=()=>{
-      const t=marks[+b.dataset.play].t; ctx.currentTime=Math.max(0,t-2); ctx.play();
-      clearTimeout(S.ws._ctxStop); S.ws._ctxStop=setTimeout(()=>ctx.pause(),4500);
+        ${m.tags.includes("other")?`<div class="other-note"><textarea rows="2" placeholder="Describe the issue…" data-note="${i}">${m.note||""}</textarea></div>`:""}
+        <div class="ctx-bar" data-ctx="${i}">
+          <button class="sbtn" data-rew="${i}">◀ 2s</button>
+          <button class="sbtn" data-playctx="${i}">▶ from prev</button>
+          <button class="sbtn" data-fwd="${i}">2s ▶</button>
+          <div class="ctx-meter" data-cbar="${i}"><div class="ctx-fill" id="ctxfill${i}"></div></div>
+          <div class="clock2" id="ctxcur${i}">--:--</div>
+          <button class="sbtn" data-stop="${i}">■</button>
+        </div>
+      </div>`;
+    }).join("");
+
+    // tag toggle — multi-select
+    mlist.querySelectorAll(".tbtn").forEach(b=>b.onclick=()=>{
+      const i=+b.dataset.i,tk=b.dataset.t;
+      const tags=marks[i].tags;
+      const idx=tags.indexOf(tk);
+      if(idx===-1)tags.push(tk); else tags.splice(idx,1);
+      saveCache();draw();
     });
-  };
+
+    // delete toggle
+    mlist.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{marks[+b.dataset.del].deleted=!marks[+b.dataset.del].deleted;saveCache();draw();});
+
+    // free text note
+    mlist.querySelectorAll("[data-note]").forEach(ta=>ta.addEventListener("input",()=>{marks[+ta.dataset.note].note=ta.value;saveCache();}));
+
+    // context playback controls
+    mlist.querySelectorAll("[data-playctx]").forEach(b=>b.onclick=()=>{
+      const i=+b.dataset.playctx,m=marks[i];
+      const prevMarks=marks.slice(0,i).filter(x=>!x.deleted);
+      const fromT=prevMarks.length?prevMarks[prevMarks.length-1].t:0;
+      playSegment(ctxAudio,fromT,m.t,i);
+    });
+    mlist.querySelectorAll("[data-rew]").forEach(b=>b.onclick=()=>{ctxAudio.currentTime=Math.max(0,ctxAudio.currentTime-2);});
+    mlist.querySelectorAll("[data-fwd]").forEach(b=>b.onclick=()=>{ctxAudio.currentTime=Math.min(ctxAudio.duration||999,ctxAudio.currentTime+2);});
+    mlist.querySelectorAll("[data-stop]").forEach(b=>b.onclick=()=>{ctxAudio.pause();});
+  }
+
+  let activeIdx=null,stopTimer=null;
+  function playSegment(audio,from,to,idx){
+    clearTimeout(stopTimer);
+    audio.pause();
+    audio.currentTime=from;
+    audio.play();
+    activeIdx=idx;
+    const dur=(to-from)*1000+500; // play to mark + 0.5s after
+    stopTimer=setTimeout(()=>{audio.pause();activeIdx=null;},dur);
+  }
+
+  // update ctx meters while playing
+  ctxAudio.addEventListener("timeupdate",()=>{
+    if(activeIdx===null)return;
+    const fill=document.getElementById("ctxfill"+activeIdx);
+    const cur=document.getElementById("ctxcur"+activeIdx);
+    const m=marks[activeIdx];
+    if(!fill||!m)return;
+    const from=activeIdx>0?marks.slice(0,activeIdx).filter(x=>!x.deleted).map(x=>x.t).pop()||0:0;
+    const span=m.t-from;
+    if(span>0)fill.style.width=(Math.min(1,(ctxAudio.currentTime-from)/span)*100)+"%";
+    if(cur)cur.textContent=fmt(ctxAudio.currentTime);
+  });
+
   draw();
 
-  document.getElementById("cleanBtn").onclick=()=>{ d.clean=true; saveCache(); openWS(); };
   document.getElementById("doneBtn").onclick=()=>{
-    const un=marks.filter(m=>!m.deleted&&!m.tag).length;
-    if(un&&!confirm(un+" stop(s) have no tag. Save anyway?")) return;
-    teardown(); S.screen="dashboard"; render();
+    const un=marks.filter(m=>!m.deleted&&!m.tags.length).length;
+    if(un&&!confirm(un+" stop(s) have no tag. Save anyway?"))return;
+    teardown();S.screen="dashboard";render();
   };
 }
 
 function teardown(){
-  if(S.ws){
-    if(S.ws.audio){ try{S.ws.audio.pause();}catch(e){} }
-    if(S.ws._key) document.removeEventListener("keydown",S.ws._key);
-    clearTimeout(S.ws._ctxStop);
-  }
+  if(S.ws){if(S.ws.audio){try{S.ws.audio.pause();}catch(e){}}if(S.ws._key)document.removeEventListener("keydown",S.ws._key);}
 }
 
-/* ---- EXPORT ---- */
+/* ── EXPORT ── */
 function exportData(){
   const at=new Date().toISOString();
-  const payload={annotatorId:S.annotatorId,exportedAt:at,
-    performances:PERFORMANCES.map(p=>{
-      const d=S.data[p.id];
-      return {id:p.id,piece:p.piece,piece_id:p.piece_id,recording_number:p.recording_number,
-        clean:d.clean,completed:d.done,
-        marks:d.marks.map((m,i)=>({index:i,timestamp_sec:m.t,tag:m.tag||null,deleted:m.deleted}))};
-    })};
+  const payload={annotatorId:S.annotatorId,exportedAt:at,taxonomy:TAGS.map(t=>t.k),performances:PERFORMANCES.map(p=>{const d=S.data[p.id];return{id:p.id,piece:p.piece,piece_id:p.piece_id,recording_number:p.recording_number,completed:d.done,marks:d.marks.map((m,i)=>({index:i,timestamp_sec:m.t,tags:m.tags,note:m.note||null,deleted:m.deleted}))};})};
   dl(`stops_${S.annotatorId}_${stamp()}.json`,JSON.stringify(payload,null,2),"application/json");
-
-  let rows=[["annotator","exported_at","id","piece","piece_id","recording_number","clean","completed","mark_index","timestamp_sec","tag","deleted"]];
-  PERFORMANCES.forEach(p=>{
-    const d=S.data[p.id];
-    if(!d.marks.length) rows.push([S.annotatorId,at,p.id,p.piece,p.piece_id,p.recording_number,d.clean,d.done,"","","",""]);
-    else d.marks.forEach((m,i)=>rows.push([S.annotatorId,at,p.id,p.piece,p.piece_id,p.recording_number,d.clean,d.done,i,m.t,m.tag||"",m.deleted]));
-  });
-  dl(`stops_${S.annotatorId}_${stamp()}.csv`,rows.map(r=>r.map(c=>{c=String(c);return /[",\n]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c;}).join(",")).join("\n"),"text/csv");
+  let rows=[["annotator","exported_at","id","piece","piece_id","recording_number","completed","mark_index","timestamp_sec","tags","note","deleted"]];
+  PERFORMANCES.forEach(p=>{const d=S.data[p.id];if(!d.marks.length)rows.push([S.annotatorId,at,p.id,p.piece,p.piece_id,p.recording_number,d.done,"","","","",""]);else d.marks.forEach((m,i)=>rows.push([S.annotatorId,at,p.id,p.piece,p.piece_id,p.recording_number,d.done,i,m.t,m.tags.join("|"),m.note||"",m.deleted]));});
+  dl(`stops_${S.annotatorId}_${stamp()}.csv`,rows.map(r=>r.map(c=>{c=String(c);return/[",\n]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c;}).join(",")).join("\n"),"text/csv");
 }
 const stamp=()=>new Date().toISOString().replace(/[:.]/g,"-").slice(0,19);
 function dl(name,text,type){const b=new Blob([text],{type}),u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1500);}
-
-window.addEventListener("beforeunload",e=>{
-  if(Object.values(S.data).some(d=>d.done||d.clean)){e.preventDefault();e.returnValue="";}
-});
-
+window.addEventListener("beforeunload",e=>{if(Object.values(S.data).some(d=>d.done)){e.preventDefault();e.returnValue="";}});
 render();
 </script>
 </body>
