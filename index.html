@@ -63,7 +63,10 @@ hr.div{border:none;border-top:1px solid var(--line);margin:16px 0}
 .taxbar{background:var(--paper2);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:12px}
 .taxbar b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--soft);margin-bottom:5px}
 .taxpills{display:flex;gap:5px;flex-wrap:wrap}
-.taxpill{font-family:var(--mono);font-size:10px;background:var(--paper);border:1px solid var(--line);color:var(--soft);padding:2px 7px;border-radius:999px}
+.taxpill{font-family:var(--mono);font-size:10px;background:var(--paper);border:1px solid var(--line);color:var(--soft);padding:2px 7px;border-radius:999px;white-space:nowrap}
+.taxrows{display:flex;flex-direction:column;gap:4px;margin-top:4px}
+.taxrow{display:flex;align-items:baseline;gap:8px}
+.taxd{font-size:11px;color:var(--soft)}
 /* transport */
 .transport{background:var(--paper2);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
 .clock{font-family:var(--mono);font-size:22px;letter-spacing:1px;font-variant-numeric:tabular-nums}
@@ -77,7 +80,7 @@ hr.div{border:none;border-top:1px solid var(--line);margin:16px 0}
 .hint{font-family:var(--mono);font-size:11px;color:var(--soft);margin-top:5px}
 /* tagging */
 .mrow{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--paper2);display:flex;flex-direction:column;gap:8px}
-.mrow.del{opacity:.38}
+.mrow.del .mtime,.mrow.del .tagbtns,.mrow.del .ctx-bar,.mrow.del .other-note{opacity:.38}
 .mrow-top{display:flex;align-items:center;gap:10px}
 .mtime{font-family:var(--mono);font-size:15px;font-variant-numeric:tabular-nums;min-width:70px}
 .tagbtns{display:flex;gap:4px;flex-wrap:wrap;flex:1}
@@ -107,15 +110,15 @@ hr.div{border:none;border-top:1px solid var(--line);margin:16px 0}
 <script>
 /* ── Taxonomy (Morsi et al., SMC 2024 + Palmer & van de Sande 1993) ── */
 const TAGS = [
-  {k:"pitch",     l:"Pitch",          d:"Wrong, missing, or extra notes (insertions / deletions / substitutions)"},
-  {k:"rhythm",    l:"Rhythm",         d:"Timing errors, tempo instability, hesitation, rhythmic inaccuracy"},
-  {k:"dynamics",  l:"Dynamics",       d:"Velocity / loudness errors, balance issues"},
-  {k:"structure", l:"Structure",      d:"Repetition, loss of place, beat interruption, stopping mid-phrase"},
-  {k:"technique", l:"Technique",      d:"Fingering, evenness, articulation, physical control"},
+  {k:"pitch",     l:"Pitch",          d:"Insertions, deletions, substitutions, mistouches"},
+  {k:"rhythm",    l:"Rhythm",         d:"Hesitations, pauses, dragging notes, beat interruptions"},
+  {k:"dynamics",  l:"Dynamics",       d:"Unexpected loudness, velocity errors, balance"},
+  {k:"structure", l:"Structure",      d:"Repetitions, loss of place, stopping mid-phrase"},
+  {k:"technique", l:"Technique",      d:"Pedaling, evenness, articulation, physical control"},
   {k:"interp",    l:"Interpretation", d:"Phrasing, style, musical expression beyond notation"},
   {k:"other",     l:"Other",          d:""}
 ];
-const TAX_CITE = "Taxonomy adapted from Morsi et al. (SMC 2024) and Palmer & van de Sande (1993).";
+const TAX_CITE = "Pitch, Rhythm, Dynamics, Structure: Morsi et al. (SMC 2024). Technique, Interpretation: Palmer & van de Sande (1993).";
 
 const SCORES = {
   1: ["scores/CarelessLove-1.png","scores/CarelessLove-2.png"],
@@ -152,7 +155,7 @@ const PERFORMANCES = [
 ];
 
 const CACHE_KEY="stoppoint_v5";
-let S={annotatorId:"",screen:"welcome",currentId:null,data:{},ws:null};
+let S={annotatorId:"",screen:"welcome",currentId:null,data:{},ws:null,dashScroll:0};
 PERFORMANCES.forEach(p=>{S.data[p.id]={done:false,marks:[]};});
 
 function saveCache(){try{localStorage.setItem(CACHE_KEY,JSON.stringify({annotatorId:S.annotatorId,data:S.data}));}catch(e){}}
@@ -215,8 +218,9 @@ function renderDashboard(){
   });
   html+=`<div class="row" style="margin-top:8px"><button class="btn" id="exportBtn">Export annotations</button><span class="muted">Send both JSON + CSV back.</span></div>`;
   app.innerHTML=html;
-  document.querySelectorAll(".prow").forEach(r=>r.onclick=()=>{S.currentId=r.dataset.id;openWS();});
+  document.querySelectorAll(".prow").forEach(r=>r.onclick=()=>{S.dashScroll=window.scrollY;S.currentId=r.dataset.id;openWS();});
   document.getElementById("exportBtn").onclick=exportData;
+  requestAnimationFrame(()=>window.scrollTo(0,S.dashScroll));
 }
 
 /* ── WORKSPACE ── */
@@ -228,7 +232,7 @@ function openWS(){
 }
 
 function taxBar(){
-  return `<div class="taxbar"><b>Error taxonomy</b><div class="taxpills">${TAGS.map(t=>`<span class="taxpill">${t.l}</span>`).join("")}</div></div>`;
+  return `<div class="taxbar"><b>Error taxonomy</b><div class="taxrows">${TAGS.filter(t=>t.k!=="other").map(t=>`<div class="taxrow"><span class="taxpill">${t.l}</span><span class="taxd">${t.d}</span></div>`).join("")}</div><div class="cite" style="margin-top:6px">${TAX_CITE}</div></div>`;
 }
 
 function renderWorkspace(){
