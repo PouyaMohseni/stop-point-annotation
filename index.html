@@ -232,7 +232,7 @@ function openWS(){
 }
 
 function taxBar(){
-  return `<div class="taxbar"><b>Error taxonomy</b><div class="taxrows">${TAGS.filter(t=>t.k!=="other").map(t=>`<div class="taxrow"><span class="taxpill">${t.l}</span><span class="taxd">${t.d}</span></div>`).join("")}</div><div class="cite" style="margin-top:6px">${TAX_CITE}</div></div>`;
+  return `<div class="taxbar"><b>Error taxonomy</b><div class="taxrows">${TAGS.filter(t=>t.k!=="other").map(t=>`<div class="taxrow"><span class="taxpill">${t.l}</span><span class="taxd">${t.d}</span></div>`).join("")}</div></div>`;
 }
 
 function renderWorkspace(){
