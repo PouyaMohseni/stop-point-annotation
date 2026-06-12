@@ -81,8 +81,10 @@ hr.div{border:none;border-top:1px solid var(--line);margin:16px 0}
 /* tagging */
 .mrow{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--paper2);display:flex;flex-direction:column;gap:8px}
 .mrow.del .mtime,.mrow.del .tagbtns,.mrow.del .ctx-bar,.mrow.del .other-note{opacity:.38}
+.mrow.trailing{border-style:dashed}
 .mrow-top{display:flex;align-items:center;gap:10px}
 .mtime{font-family:var(--mono);font-size:15px;font-variant-numeric:tabular-nums;min-width:70px}
+.mrange{font-family:var(--mono);font-size:13px;color:var(--ink);font-variant-numeric:tabular-nums}
 .tagbtns{display:flex;gap:4px;flex-wrap:wrap;flex:1}
 .tbtn{font-size:11px;cursor:pointer;border:1px solid var(--line);background:var(--paper);color:var(--soft);padding:4px 9px;border-radius:999px;font-family:var(--sans)}
 .tbtn.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
@@ -164,6 +166,7 @@ loadCache();
 
 const app=document.getElementById("app"),whoLabel=document.getElementById("whoLabel");
 const fmt=t=>{if(t==null||isNaN(t))return"--:--";const m=Math.floor(t/60),s=t-m*60;return String(m).padStart(2,"0")+":"+s.toFixed(2).padStart(5,"0");};
+const fmtS=t=>{if(t==null||isNaN(t))return"--";return Math.round(t)+"s";};
 const perf=id=>PERFORMANCES.find(p=>p.id===id);
 
 function render(){
@@ -297,7 +300,11 @@ function renderPlay(audioSrc){
   a.addEventListener("ended",()=>{
     S.ws.playing=false;document.removeEventListener("keydown",kh);
     const d=S.data[S.currentId];
-    d.marks=S.ws.liveMarks.map(t=>({t,tags:[],note:"",deleted:false}));
+    const dur=a.duration||0;
+    d.marks=S.ws.liveMarks.map(t=>({t,tags:[],note:"",deleted:false,trailing:false}));
+    // always add trailing segment from last mark (or 0) to end
+    const lastT=d.marks.length?d.marks[d.marks.length-1].t:0;
+    d.marks.push({t:dur,tags:[],note:"",deleted:false,trailing:true,fromT:lastT});
     d.done=true;saveCache();S.ws.phase="tag";render();
   });
 }
@@ -324,11 +331,21 @@ function renderTag(audioSrc){
 
   function draw(){
     if(!marks.length){mlist.innerHTML=`<p class="muted">No stops marked.</p>`;return;}
-    mlist.innerHTML=marks.map((m,i)=>{
-      const prevT=i>0?marks.slice(0,i).filter(x=>!x.deleted).map(x=>x.t).pop()||0:0;
-      return `<div class="mrow ${m.deleted?"del":""}" data-i="${i}">
+    // compute fromT for each mark
+    const withFrom=marks.map((m,i)=>{
+      if(m.trailing) return {...m,fromT:m.fromT||0};
+      const prev=marks.slice(0,i).filter(x=>!x.deleted&&!x.trailing);
+      return {...m,fromT:prev.length?prev[prev.length-1].t:0};
+    });
+    mlist.innerHTML=withFrom.map((m,i)=>{
+      const rangeLabel=m.trailing
+        ? `<span class="mrange">${fmtS(m.fromT)} → end</span>`
+        : `<span class="mrange">${fmtS(m.fromT)} → ${fmtS(m.t)}</span>`;
+      const trailNote=m.trailing?`<div class="muted" style="font-size:11px;margin-bottom:4px">Segment after last stop (to end of performance)</div>`:"";
+      return `<div class="mrow ${m.deleted?"del":""} ${m.trailing?"trailing":""}" data-i="${i}">
+        ${trailNote}
         <div class="mrow-top">
-          <div class="mtime">${fmt(m.t)}</div>
+          <div>${rangeLabel}</div>
           <div class="tagbtns">
             ${TAGS.map(t=>`<button class="tbtn ${m.tags.includes(t.k)?"on":""}" data-t="${t.k}" data-i="${i}">${t.l}</button>`).join("")}
           </div>
@@ -337,7 +354,7 @@ function renderTag(audioSrc){
         ${m.tags.includes("other")?`<div class="other-note"><textarea rows="2" placeholder="Describe the issue…" data-note="${i}">${m.note||""}</textarea></div>`:""}
         <div class="ctx-bar" data-ctx="${i}">
           <button class="sbtn" data-rew="${i}">◀ 2s</button>
-          <button class="sbtn" data-playctx="${i}">▶ from prev</button>
+          <button class="sbtn" data-playctx="${i}">▶ play segment</button>
           <button class="sbtn" data-fwd="${i}">2s ▶</button>
           <div class="ctx-meter" data-cbar="${i}"><div class="ctx-fill" id="ctxfill${i}"></div></div>
           <div class="clock2" id="ctxcur${i}">--:--</div>
@@ -364,8 +381,7 @@ function renderTag(audioSrc){
     // context playback controls
     mlist.querySelectorAll("[data-playctx]").forEach(b=>b.onclick=()=>{
       const i=+b.dataset.playctx,m=marks[i];
-      const prevMarks=marks.slice(0,i).filter(x=>!x.deleted);
-      const fromT=prevMarks.length?prevMarks[prevMarks.length-1].t:0;
+      const fromT=m.trailing?m.fromT:(marks.slice(0,i).filter(x=>!x.deleted&&!x.trailing).map(x=>x.t).pop()||0);
       playSegment(ctxAudio,fromT,m.t,i);
     });
     mlist.querySelectorAll("[data-rew]").forEach(b=>b.onclick=()=>{ctxAudio.currentTime=Math.max(0,ctxAudio.currentTime-2);});
@@ -413,10 +429,10 @@ function teardown(){
 /* ── EXPORT ── */
 function exportData(){
   const at=new Date().toISOString();
-  const payload={annotatorId:S.annotatorId,exportedAt:at,taxonomy:TAGS.map(t=>t.k),performances:PERFORMANCES.map(p=>{const d=S.data[p.id];return{id:p.id,piece:p.piece,piece_id:p.piece_id,recording_number:p.recording_number,completed:d.done,marks:d.marks.map((m,i)=>({index:i,timestamp_sec:m.t,tags:m.tags,note:m.note||null,deleted:m.deleted}))};})};
+  const payload={annotatorId:S.annotatorId,exportedAt:at,taxonomy:TAGS.map(t=>t.k),performances:PERFORMANCES.map(p=>{const d=S.data[p.id];return{id:p.id,piece:p.piece,piece_id:p.piece_id,recording_number:p.recording_number,completed:d.done,marks:d.marks.map((m,i)=>({index:i,from_sec:m.trailing?m.fromT:(d.marks.slice(0,i).filter(x=>!x.deleted&&!x.trailing).map(x=>x.t).pop()||0),to_sec:m.t,trailing:m.trailing||false,tags:m.tags,note:m.note||null,deleted:m.deleted}))};})};
   dl(`stops_${S.annotatorId}_${stamp()}.json`,JSON.stringify(payload,null,2),"application/json");
-  let rows=[["annotator","exported_at","id","piece","piece_id","recording_number","completed","mark_index","timestamp_sec","tags","note","deleted"]];
-  PERFORMANCES.forEach(p=>{const d=S.data[p.id];if(!d.marks.length)rows.push([S.annotatorId,at,p.id,p.piece,p.piece_id,p.recording_number,d.done,"","","","",""]);else d.marks.forEach((m,i)=>rows.push([S.annotatorId,at,p.id,p.piece,p.piece_id,p.recording_number,d.done,i,m.t,m.tags.join("|"),m.note||"",m.deleted]));});
+  let rows=[["annotator","exported_at","id","piece","piece_id","recording_number","completed","mark_index","from_sec","to_sec","trailing","tags","note","deleted"]];
+  PERFORMANCES.forEach(p=>{const d=S.data[p.id];if(!d.marks.length)rows.push([S.annotatorId,at,p.id,p.piece,p.piece_id,p.recording_number,d.done,"","","","","","",""]);else d.marks.forEach((m,i)=>{const fromT=m.trailing?m.fromT:(d.marks.slice(0,i).filter(x=>!x.deleted&&!x.trailing).map(x=>x.t).pop()||0);rows.push([S.annotatorId,at,p.id,p.piece,p.piece_id,p.recording_number,d.done,i,fromT,m.t,m.trailing||false,m.tags.join("|"),m.note||"",m.deleted]);});});
   dl(`stops_${S.annotatorId}_${stamp()}.csv`,rows.map(r=>r.map(c=>{c=String(c);return/[",\n]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c;}).join(",")).join("\n"),"text/csv");
 }
 const stamp=()=>new Date().toISOString().replace(/[:.]/g,"-").slice(0,19);
