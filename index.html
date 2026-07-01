@@ -82,6 +82,16 @@ hr.div{border:none;border-top:1px solid var(--line);margin:16px 0}
 .mrow{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--paper2);display:flex;flex-direction:column;gap:8px}
 .mrow.del .mtime,.mrow.del .tagbtns,.mrow.del .ctx-bar,.mrow.del .other-note{opacity:.38}
 .mrow.trailing{border-style:dashed}
+.mrow.first-seg{background:#f0ebe0;border-color:#c8a882}
+/* dashboard grid */
+.dash-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px}
+.dash-cell{border:1px solid var(--line);border-radius:9px;background:var(--paper2);cursor:pointer;padding:12px 13px;transition:border-color .1s;display:flex;flex-direction:column;gap:4px}
+.dash-cell:hover{border-color:var(--ink)}
+.dash-cell .piece-name{font-family:var(--serif);font-size:13px;font-weight:600;color:var(--soft)}
+.dash-cell .perf-num{font-size:14px;font-weight:500}
+.dash-cell .sub{font-family:var(--mono);font-size:11px;color:var(--soft)}
+.dash-cell .st{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+.st.todo{color:var(--soft)}.st.active{color:var(--red)}.st.done{color:var(--green)}
 .mrow-top{display:flex;align-items:center;gap:10px}
 .mtime{font-family:var(--mono);font-size:15px;font-variant-numeric:tabular-nums;min-width:70px}
 .mrange{font-family:var(--mono);font-size:13px;color:var(--ink);font-variant-numeric:tabular-nums}
@@ -182,7 +192,7 @@ function renderWelcome(){
   <div class="card stack">
     <p>You will listen to <b>21 beginner piano performances</b> across 7 pieces (3 per piece). Your task:</p>
     <div class="defn">As you listen, mark the moment you would <b>stop the student</b> to give corrective feedback — only stops you would actually make in a real lesson.</div>
-    <p class="muted">Each performance is a <b>single real-time listen with no rewind</b>. Press <kbd>S</kbd> or MARK at the exact moment you would interrupt. When it ends, tag each mark with one or more reasons.</p>
+    <p class="muted">Each performance is a <b>single real-time listen with no rewind</b>. Press <kbd>S</kbd> on your keyboard or click <b>MARK</b> using your mouse at the exact moment you would interrupt. When it ends, tag each mark with one or more reasons.</p>
     <div>
       <div class="lbl">Error taxonomy</div>
       <div class="taglist">${TAGS.map(t=>`<div class="tagdef"><b>${t.l}</b><span>${t.d}</span></div>`).join("")}</div>
@@ -209,19 +219,23 @@ function statusOf(id){
 function renderDashboard(){
   const done=PERFORMANCES.filter(p=>statusOf(p.id).cls==="done").length;
   const pieces=[...new Set(PERFORMANCES.map(p=>p.piece_id))];
-  let html=`<h1>Performances</h1><div class="prog">${done} / ${PERFORMANCES.length} complete</div>`;
+  let html=`<h1>Performances</h1><div class="prog">${done} / ${PERFORMANCES.length} complete</div><div class="dash-grid">`;
+  // build rows: each piece is one row of 3 cells
   pieces.forEach(pid=>{
     const group=PERFORMANCES.filter(p=>p.piece_id===pid);
-    html+=`<div class="piece-block"><div class="piece-label">${group[0].piece}</div><div class="plist">`;
     group.forEach((p,i)=>{
       const st=statusOf(p.id),nm=S.data[p.id].marks.filter(m=>!m.deleted).length;
-      html+=`<div class="prow" data-id="${p.id}"><div><div class="title">Performance ${i+1}</div><div class="sub">${nm?nm+" stop"+(nm>1?"s":"")+" marked":"—"}</div></div><div class="st ${st.cls}">${st.txt}</div></div>`;
+      html+=`<div class="dash-cell" data-id="${p.id}">
+        <div class="piece-name">${p.piece}</div>
+        <div class="perf-num">Performance ${i+1}</div>
+        <div class="sub">${nm?nm+" stop"+(nm>1?"s":"")+" marked":"—"}</div>
+        <div class="st ${st.cls}">${st.txt}</div>
+      </div>`;
     });
-    html+=`</div></div>`;
   });
-  html+=`<div class="row" style="margin-top:8px"><button class="btn" id="exportBtn">Export annotations</button><span class="muted">Send both JSON + CSV back.</span></div>`;
+  html+=`</div><div class="row" style="margin-top:4px"><button class="btn" id="exportBtn">Export annotations</button><span class="muted">Send both JSON + CSV back.</span></div>`;
   app.innerHTML=html;
-  document.querySelectorAll(".prow").forEach(r=>r.onclick=()=>{S.dashScroll=window.scrollY;S.currentId=r.dataset.id;openWS();});
+  document.querySelectorAll(".dash-cell").forEach(r=>r.onclick=()=>{S.dashScroll=window.scrollY;S.currentId=r.dataset.id;openWS();});
   document.getElementById("exportBtn").onclick=exportData;
   requestAnimationFrame(()=>window.scrollTo(0,S.dashScroll));
 }
@@ -324,7 +338,7 @@ function renderTag(audioSrc){
     <p class="muted">Select one or more reasons. ▶ plays from the previous stop (or start) to this mark. Use ◀▶ to scrub.</p>
     <div style="display:flex;flex-direction:column;gap:8px" id="mlist"></div>
     <div class="row" style="margin-top:14px">
-      <button class="btn" id="doneBtn">Save &amp; back</button>
+      <button class="btn" id="doneBtn">Save &amp; back to performances</button>
     </div>`;
 
   const mlist=document.getElementById("mlist");
@@ -342,7 +356,7 @@ function renderTag(audioSrc){
         ? `<span class="mrange">${fmtS(m.fromT)} → end</span>`
         : `<span class="mrange">${fmtS(m.fromT)} → ${fmtS(m.t)}</span>`;
       const trailNote=m.trailing?`<div class="muted" style="font-size:11px;margin-bottom:4px">Segment after last stop (to end of performance)</div>`:"";
-      return `<div class="mrow ${m.deleted?"del":""} ${m.trailing?"trailing":""}" data-i="${i}">
+      return `<div class="mrow ${m.deleted?"del":""} ${m.trailing?"trailing":""} ${i===0&&!m.trailing?"first-seg":""}" data-i="${i}">
         ${trailNote}
         <div class="mrow-top">
           <div>${rangeLabel}</div>
