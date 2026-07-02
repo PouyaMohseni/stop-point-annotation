@@ -41,16 +41,19 @@ hr.div{border:none;border-top:1px solid var(--line);margin:16px 0}
 .tagdef b{display:block;margin-bottom:2px}.tagdef span{color:var(--soft);font-size:12px}
 .cite{font-size:11px;color:var(--soft);font-style:italic;margin-top:6px}
 /* dashboard */
-.prog{font-family:var(--mono);font-size:12px;color:var(--soft);margin:4px 0 18px}
-.piece-block{margin-bottom:20px}
-.piece-label{font-family:var(--serif);font-size:16px;font-weight:600;border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:8px}
-.plist{display:flex;flex-direction:column;gap:6px}
-.prow{display:grid;grid-template-columns:1fr 90px;gap:12px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:10px 13px;background:var(--paper2);cursor:pointer;transition:border-color .1s}
-.prow:hover{border-color:var(--ink)}
-.prow .title{font-size:14px;font-weight:500}
-.prow .sub{font-family:var(--mono);font-size:11px;color:var(--soft);margin-top:2px}
-.st{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.04em;text-align:right}
-.st.todo{color:var(--soft)}.st.active{color:var(--red)}.st.done{color:var(--green)}
+.prog{font-family:var(--mono);font-size:12px;color:var(--soft);margin:4px 0 20px}
+.dash-table{width:100%;border-collapse:separate;border-spacing:0;margin-bottom:24px}
+.col-header{font-size:11px;font-weight:600;color:var(--soft);text-align:center;padding:0 6px 12px;letter-spacing:.06em;text-transform:uppercase}
+.row-header{font-family:var(--serif);font-size:13px;font-weight:600;color:var(--ink);text-align:right;padding:5px 16px 5px 0;white-space:nowrap;vertical-align:middle}
+.dcell{padding:4px;vertical-align:middle}
+.dcell-inner{border:1px solid var(--line);border-radius:10px;background:var(--paper2);cursor:pointer;padding:11px 10px;transition:border-color .12s,background .12s,transform .1s;text-align:center;min-width:110px;display:block}
+.dcell-inner:hover{border-color:var(--ink);background:var(--paper);transform:translateY(-1px)}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-family:var(--mono);letter-spacing:.04em;padding:3px 8px;border-radius:999px;font-weight:500}
+.bdot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;display:inline-block}
+.badge.todo{background:var(--paper);color:var(--soft);border:1px solid var(--line)}
+.badge.active{background:#fef3e2;color:#a05c00;border:1px solid #f0c070}
+.badge.done{background:#e6f2eb;color:var(--green);border:1px solid #a8d4b8}
+.dsub{font-family:var(--mono);font-size:11px;color:var(--soft);margin-top:5px}
 /* workspace two-col */
 .ws-layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
 .score-col{position:sticky;top:16px;max-height:92vh;overflow-y:auto}
@@ -83,14 +86,13 @@ hr.div{border:none;border-top:1px solid var(--line);margin:16px 0}
 .mrow.del .mtime,.mrow.del .tagbtns,.mrow.del .ctx-bar,.mrow.del .other-note{opacity:.38}
 .mrow.trailing{border-style:dashed}
 .mrow.first-seg{background:#f0ebe0;border-color:#c8a882}
-/* dashboard grid */
-.dash-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px}
-.dash-cell{border:1px solid var(--line);border-radius:9px;background:var(--paper2);cursor:pointer;padding:12px 13px;transition:border-color .1s;display:flex;flex-direction:column;gap:4px}
-.dash-cell:hover{border-color:var(--ink)}
-.dash-cell .piece-name{font-family:var(--serif);font-size:13px;font-weight:600;color:var(--soft)}
-.dash-cell .perf-num{font-size:14px;font-weight:500}
-.dash-cell .sub{font-family:var(--mono);font-size:11px;color:var(--soft)}
-.dash-cell .st{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+/* dashboard table */
+.dash-table{width:100%;border-collapse:separate;border-spacing:6px;margin-bottom:20px}
+.dash-table th{font-family:var(--serif);font-size:13px;font-weight:600;color:var(--soft);text-align:center;padding:4px 8px}
+.dash-table th.piece-th{text-align:right;font-size:13px;color:var(--ink);min-width:160px}
+.dash-cell{border:1px solid var(--line);border-radius:8px;background:var(--paper2);cursor:pointer;padding:10px 12px;transition:border-color .12s;text-align:center;vertical-align:middle}
+.dash-cell:hover{border-color:var(--ink);background:var(--paper)}
+.dash-cell .sub{font-family:var(--mono);font-size:11px;color:var(--soft);margin-top:3px}
 .st.todo{color:var(--soft)}.st.active{color:var(--red)}.st.done{color:var(--green)}
 .mrow-top{display:flex;align-items:center;gap:10px}
 .mtime{font-family:var(--mono);font-size:15px;font-variant-numeric:tabular-nums;min-width:70px}
@@ -219,23 +221,35 @@ function statusOf(id){
 function renderDashboard(){
   const done=PERFORMANCES.filter(p=>statusOf(p.id).cls==="done").length;
   const pieces=[...new Set(PERFORMANCES.map(p=>p.piece_id))];
-  let html=`<h1>Performances</h1><div class="prog">${done} / ${PERFORMANCES.length} complete</div><div class="dash-grid">`;
-  // build rows: each piece is one row of 3 cells
+  const stLabel={todo:"not started",active:"needs tags",done:"done ✓"};
+  let html=`<h1>Performances</h1><div class="prog">${done} / ${PERFORMANCES.length} complete</div>
+  <table class="dash-table">
+    <thead><tr>
+      <th style="width:170px"></th>
+      <th class="col-header">Performance 1</th>
+      <th class="col-header">Performance 2</th>
+      <th class="col-header">Performance 3</th>
+    </tr></thead>
+    <tbody>`;
   pieces.forEach(pid=>{
     const group=PERFORMANCES.filter(p=>p.piece_id===pid);
-    group.forEach((p,i)=>{
-      const st=statusOf(p.id),nm=S.data[p.id].marks.filter(m=>!m.deleted).length;
-      html+=`<div class="dash-cell" data-id="${p.id}">
-        <div class="piece-name">${p.piece}</div>
-        <div class="perf-num">Performance ${i+1}</div>
-        <div class="sub">${nm?nm+" stop"+(nm>1?"s":"")+" marked":"—"}</div>
-        <div class="st ${st.cls}">${st.txt}</div>
-      </div>`;
+    html+=`<tr><th class="row-header">${group[0].piece}</th>`;
+    group.forEach((p)=>{
+      const st=statusOf(p.id),nm=S.data[p.id].marks.filter(m=>!m.deleted&&!m.trailing).length;
+      html+=`<td class="dcell"><div class="dcell-inner" data-id="${p.id}">
+        <span class="badge ${st.cls}"><span class="bdot"></span>${stLabel[st.cls]}</span>
+        <div class="dsub">${nm?nm+" stop"+(nm>1?"s":""):"—"}</div>
+      </div></td>`;
     });
+    html+=`</tr>`;
   });
-  html+=`</div><div class="row" style="margin-top:4px"><button class="btn" id="exportBtn">Export annotations</button><span class="muted">Send both JSON + CSV back.</span></div>`;
+  html+=`</tbody></table>
+  <div class="row" style="margin-top:4px">
+    <button class="btn" id="exportBtn">Export annotations</button>
+    <span class="muted">Send both JSON + CSV back.</span>
+  </div>`;
   app.innerHTML=html;
-  document.querySelectorAll(".dash-cell").forEach(r=>r.onclick=()=>{S.dashScroll=window.scrollY;S.currentId=r.dataset.id;openWS();});
+  document.querySelectorAll(".dcell-inner").forEach(r=>r.onclick=()=>{S.dashScroll=window.scrollY;S.currentId=r.dataset.id;openWS();});
   document.getElementById("exportBtn").onclick=exportData;
   requestAnimationFrame(()=>window.scrollTo(0,S.dashScroll));
 }
