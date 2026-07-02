@@ -295,14 +295,14 @@ function renderPlay(audioSrc){
   const col=document.getElementById("rightCol");
   const existing=col.querySelector(".taxbar");
   col.innerHTML=(existing?existing.outerHTML:taxBar())+`
-    <div class="banner">Single real-time listen — no rewind. Press <kbd>S</kbd> or MARK at the moment you would stop the student.</div>
+    <div class="banner">Single real-time listen — no rewind. Press <kbd>S</kbd> on your keyboard or click <b>STOP</b> using your mouse at the moment you would stop the student.</div>
     <div class="transport">
       <div class="clock"><span id="cur">00:00.00</span> <span class="tot">/ <span id="tot">--:--</span></span></div>
       <div class="meter" id="meter"><div class="fill" id="fill"></div></div>
       <div class="row" style="gap:8px">
         <button class="btn ghost" id="playBtn">▶ Start</button>
       </div>
-      <button class="markbtn" id="markBtn" disabled>MARK STOP · S</button>
+      <button class="markbtn" id="markBtn" disabled>STOP</button>
       <div class="chips" id="chips"></div>
       <div class="hint" id="phint">Press Start when ready.</div>
     </div>`;
@@ -365,12 +365,14 @@ function renderTag(audioSrc){
       const prev=marks.slice(0,i).filter(x=>!x.deleted&&!x.trailing);
       return {...m,fromT:prev.length?prev[prev.length-1].t:0};
     });
+    const firstActiveIdx=withFrom.findIndex(x=>!x.deleted&&!x.trailing);
     mlist.innerHTML=withFrom.map((m,i)=>{
+      const isFirstActive=i===firstActiveIdx;
       const rangeLabel=m.trailing
         ? `<span class="mrange">${fmtS(m.fromT)} → end</span>`
         : `<span class="mrange">${fmtS(m.fromT)} → ${fmtS(m.t)}</span>`;
       const trailNote=m.trailing?`<div class="muted" style="font-size:11px;margin-bottom:4px">Segment after last stop (to end of performance)</div>`:"";
-      return `<div class="mrow ${m.deleted?"del":""} ${m.trailing?"trailing":""} ${i===0&&!m.trailing?"first-seg":""}" data-i="${i}">
+      return `<div class="mrow ${m.deleted?"del":""} ${m.trailing?"trailing":""} ${isFirstActive?"first-seg":""}" data-i="${i}">
         ${trailNote}
         <div class="mrow-top">
           <div>${rangeLabel}</div>
