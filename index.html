@@ -40,6 +40,10 @@ hr.div{border:none;border-top:1px solid var(--line);margin:16px 0}
 .tagdef{border:1px solid var(--line);border-radius:8px;padding:8px 11px;background:var(--paper);font-size:13px}
 .tagdef b{display:block;margin-bottom:2px}.tagdef span{color:var(--soft);font-size:12px}
 .cite{font-size:11px;color:var(--soft);font-style:italic;margin-top:6px}
+.tog-on{background:var(--ink)!important;color:var(--paper)!important;border-color:var(--ink)!important}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:end}
+input[type=number]{width:100%;font-family:var(--mono);font-size:14px;padding:10px 12px;border:1px solid var(--line);border-radius:7px;background:var(--paper);color:var(--ink)}
+input[type=number]:focus{outline:2px solid var(--red2);border-color:var(--red)}
 /* dashboard */
 .prog{font-family:var(--mono);font-size:12px;color:var(--soft);margin:4px 0 20px}
 .dash-table{width:100%;border-collapse:separate;border-spacing:0;margin-bottom:24px}
@@ -169,11 +173,12 @@ const PERFORMANCES = [
 ];
 
 const CACHE_KEY="stoppoint_v5";
-let S={annotatorId:"",screen:"welcome",currentId:null,data:{},ws:null,dashScroll:0};
+let S={annotatorId:"",screen:"welcome",currentId:null,data:{},ws:null,dashScroll:0,
+  demo:{yearsTeaching:"",yearsPlaying:"",training:"",teachesBeginners:""}};
 PERFORMANCES.forEach(p=>{S.data[p.id]={done:false,marks:[]};});
 
-function saveCache(){try{localStorage.setItem(CACHE_KEY,JSON.stringify({annotatorId:S.annotatorId,data:S.data}));}catch(e){}}
-function loadCache(){try{const c=JSON.parse(localStorage.getItem(CACHE_KEY)||"null");if(!c)return;if(c.annotatorId)S.annotatorId=c.annotatorId;if(c.data)Object.keys(c.data).forEach(k=>{if(S.data[k])S.data[k]=c.data[k];});}catch(e){}}
+function saveCache(){try{localStorage.setItem(CACHE_KEY,JSON.stringify({annotatorId:S.annotatorId,data:S.data,demo:S.demo}));}catch(e){}}
+function loadCache(){try{const c=JSON.parse(localStorage.getItem(CACHE_KEY)||"null");if(!c)return;if(c.annotatorId)S.annotatorId=c.annotatorId;if(c.data)Object.keys(c.data).forEach(k=>{if(S.data[k])S.data[k]=c.data[k];});if(c.demo)S.demo=c.demo;}catch(e){}}
 loadCache();
 
 const app=document.getElementById("app"),whoLabel=document.getElementById("whoLabel");
@@ -190,11 +195,12 @@ function render(){
 
 /* ── WELCOME ── */
 function renderWelcome(){
+  const d=S.demo;
   app.innerHTML=`<h1>Teacher Intervention Annotation</h1>
   <div class="card stack">
     <p>You will listen to <b>21 beginner piano performances</b> across 7 pieces (3 per piece). Your task:</p>
     <div class="defn">As you listen, mark the moment you would <b>stop the student</b> to give corrective feedback — only stops you would actually make in a real lesson.</div>
-    <p class="muted">Each performance is a <b>single real-time listen with no rewind</b>. Press <kbd>S</kbd> on your keyboard or click <b>MARK</b> using your mouse at the exact moment you would interrupt. When it ends, tag each mark with one or more reasons.</p>
+    <p class="muted">Each performance is a <b>single real-time listen with no rewind</b>. Press <kbd>S</kbd> on your keyboard or click <b>STOP</b> using your mouse at the exact moment you would interrupt. When it ends, tag each mark with one or more reasons.</p>
     <div>
       <div class="lbl">Error taxonomy</div>
       <div class="taglist">${TAGS.map(t=>`<div class="tagdef"><b>${t.l}</b><span>${t.d}</span></div>`).join("")}</div>
@@ -202,14 +208,56 @@ function renderWelcome(){
     </div>
     <hr class="div">
     <div>
-      <label class="lbl" for="aid">Your name or initials</label>
+      <label class="lbl" for="aid">Full name</label>
       <input id="aid" type="text" placeholder="e.g. Jane Smith" value="${S.annotatorId}" autocomplete="off">
     </div>
-    <div class="row" style="margin-top:4px"><button class="btn" id="startBtn">Go to performances</button></div>
+    <div class="two-col">
+      <div>
+        <label class="lbl" for="yearsTeaching">Years teaching piano</label>
+        <input id="yearsTeaching" type="number" min="0" max="60" placeholder="e.g. 8" value="${d.yearsTeaching}" autocomplete="off">
+      </div>
+      <div>
+        <label class="lbl" for="yearsPlaying">Years playing piano</label>
+        <input id="yearsPlaying" type="number" min="0" max="80" placeholder="e.g. 15" value="${d.yearsPlaying}" autocomplete="off">
+      </div>
+    </div>
+    <div class="two-col">
+      <div>
+        <label class="lbl" for="training">Highest formal music qualification</label>
+        <input id="training" type="text" placeholder="e.g. Conservatoire diploma, Music degree, Private study" value="${d.training}" autocomplete="off">
+      </div>
+      <div style="display:flex;flex-direction:column;justify-content:flex-end">
+        <label class="lbl">Do you regularly teach beginners?</label>
+        <div class="row" style="margin-top:6px;gap:8px">
+          <button class="btn ghost togbtn ${d.teachesBeginners==='yes'?'tog-on':''}" data-val="yes">Yes</button>
+          <button class="btn ghost togbtn ${d.teachesBeginners==='no'?'tog-on':''}" data-val="no">No</button>
+        </div>
+      </div>
+    </div>
+    <div id="errMsg" style="color:var(--red);font-size:13px;display:none">Please fill in all fields before continuing.</div>
+    <div style="display:flex;justify-content:flex-end;margin-top:24px"><button class="btn" id="startBtn">Go to performances</button></div>
   </div>`;
-  const btn=document.getElementById("startBtn"),inp=document.getElementById("aid");
-  btn.onclick=()=>{const v=inp.value.trim();if(!v){inp.focus();return;}S.annotatorId=v;saveCache();S.screen="dashboard";render();};
-  inp.addEventListener("keydown",e=>{if(e.key==="Enter")btn.click();});
+
+  document.querySelectorAll(".togbtn").forEach(b=>b.onclick=()=>{
+    S.demo.teachesBeginners=b.dataset.val; saveCache();
+    document.querySelectorAll(".togbtn").forEach(x=>x.classList.remove("tog-on"));
+    b.classList.add("tog-on");
+  });
+
+  const btn=document.getElementById("startBtn");
+  btn.onclick=()=>{
+    const name=document.getElementById("aid").value.trim();
+    const yt=document.getElementById("yearsTeaching").value.trim();
+    const yp=document.getElementById("yearsPlaying").value.trim();
+    const tr=document.getElementById("training").value.trim();
+    const tb=S.demo.teachesBeginners;
+    if(!name||!yt||!yp||!tr||!tb){
+      document.getElementById("errMsg").style.display="block"; return;
+    }
+    S.annotatorId=name;
+    S.demo={yearsTeaching:yt,yearsPlaying:yp,training:tr,teachesBeginners:tb};
+    saveCache(); S.screen="dashboard"; render();
+  };
 }
 
 /* ── DASHBOARD ── */
@@ -222,7 +270,11 @@ function renderDashboard(){
   const done=PERFORMANCES.filter(p=>statusOf(p.id).cls==="done").length;
   const pieces=[...new Set(PERFORMANCES.map(p=>p.piece_id))];
   const stLabel={todo:"not started",active:"needs tags",done:"done ✓"};
-  let html=`<h1>Performances</h1><div class="prog">${done} / ${PERFORMANCES.length} complete</div>
+  let html=`<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:4px">
+    <h1>Performances</h1>
+    <button class="btn ghost" id="backToProfile" style="font-size:13px">← Edit profile</button>
+  </div>
+  <div class="prog">${done} / ${PERFORMANCES.length} complete</div>
   <table class="dash-table">
     <thead><tr>
       <th style="width:170px"></th>
@@ -251,6 +303,7 @@ function renderDashboard(){
   app.innerHTML=html;
   document.querySelectorAll(".dcell-inner").forEach(r=>r.onclick=()=>{S.dashScroll=window.scrollY;S.currentId=r.dataset.id;openWS();});
   document.getElementById("exportBtn").onclick=exportData;
+  document.getElementById("backToProfile").onclick=()=>{S.screen="welcome";render();};
   requestAnimationFrame(()=>window.scrollTo(0,S.dashScroll));
 }
 
@@ -459,10 +512,10 @@ function teardown(){
 /* ── EXPORT ── */
 function exportData(){
   const at=new Date().toISOString();
-  const payload={annotatorId:S.annotatorId,exportedAt:at,taxonomy:TAGS.map(t=>t.k),performances:PERFORMANCES.map(p=>{const d=S.data[p.id];return{id:p.id,piece:p.piece,piece_id:p.piece_id,recording_number:p.recording_number,completed:d.done,marks:d.marks.map((m,i)=>({index:i,from_sec:m.trailing?m.fromT:(d.marks.slice(0,i).filter(x=>!x.deleted&&!x.trailing).map(x=>x.t).pop()||0),to_sec:m.t,trailing:m.trailing||false,tags:m.tags,note:m.note||null,deleted:m.deleted}))};})};
+  const payload={annotatorId:S.annotatorId,demographics:S.demo,exportedAt:at,taxonomy:TAGS.map(t=>t.k),performances:PERFORMANCES.map(p=>{const d=S.data[p.id];return{id:p.id,piece:p.piece,piece_id:p.piece_id,recording_number:p.recording_number,completed:d.done,marks:d.marks.map((m,i)=>({index:i,from_sec:m.trailing?m.fromT:(d.marks.slice(0,i).filter(x=>!x.deleted&&!x.trailing).map(x=>x.t).pop()||0),to_sec:m.t,trailing:m.trailing||false,tags:m.tags,note:m.note||null,deleted:m.deleted}))};})};
   dl(`stops_${S.annotatorId}_${stamp()}.json`,JSON.stringify(payload,null,2),"application/json");
-  let rows=[["annotator","exported_at","id","piece","piece_id","recording_number","completed","mark_index","from_sec","to_sec","trailing","tags","note","deleted"]];
-  PERFORMANCES.forEach(p=>{const d=S.data[p.id];if(!d.marks.length)rows.push([S.annotatorId,at,p.id,p.piece,p.piece_id,p.recording_number,d.done,"","","","","","",""]);else d.marks.forEach((m,i)=>{const fromT=m.trailing?m.fromT:(d.marks.slice(0,i).filter(x=>!x.deleted&&!x.trailing).map(x=>x.t).pop()||0);rows.push([S.annotatorId,at,p.id,p.piece,p.piece_id,p.recording_number,d.done,i,fromT,m.t,m.trailing||false,m.tags.join("|"),m.note||"",m.deleted]);});});
+  let rows=[["annotator","years_teaching","years_playing","training","teaches_beginners","exported_at","id","piece","piece_id","recording_number","completed","mark_index","from_sec","to_sec","trailing","tags","note","deleted"]];
+  PERFORMANCES.forEach(p=>{const d=S.data[p.id];if(!d.marks.length)rows.push([S.annotatorId,S.demo.yearsTeaching,S.demo.yearsPlaying,S.demo.training,S.demo.teachesBeginners,at,p.id,p.piece,p.piece_id,p.recording_number,d.done,"","","","","","",""]);else d.marks.forEach((m,i)=>{const fromT=m.trailing?m.fromT:(d.marks.slice(0,i).filter(x=>!x.deleted&&!x.trailing).map(x=>x.t).pop()||0);rows.push([S.annotatorId,S.demo.yearsTeaching,S.demo.yearsPlaying,S.demo.training,S.demo.teachesBeginners,at,p.id,p.piece,p.piece_id,p.recording_number,d.done,i,fromT,m.t,m.trailing||false,m.tags.join("|"),m.note||"",m.deleted]);});});
   dl(`stops_${S.annotatorId}_${stamp()}.csv`,rows.map(r=>r.map(c=>{c=String(c);return/[",\n]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c;}).join(",")).join("\n"),"text/csv");
 }
 const stamp=()=>new Date().toISOString().replace(/[:.]/g,"-").slice(0,19);
