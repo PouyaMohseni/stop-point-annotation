@@ -174,11 +174,25 @@ const PERFORMANCES = [
 
 const CACHE_KEY="stoppoint_v5";
 let S={annotatorId:"",screen:"welcome",currentId:null,data:{},ws:null,dashScroll:0,
-  demo:{yearsTeaching:"",yearsPlaying:"",training:"",teachesBeginners:""}};
+  demo:{yearsTeaching:"",yearsPlaying:"",training:"",teachesBeginners:""},
+  pieceOrder:null, perfOrder:{}};
 PERFORMANCES.forEach(p=>{S.data[p.id]={done:false,marks:[]};});
 
-function saveCache(){try{localStorage.setItem(CACHE_KEY,JSON.stringify({annotatorId:S.annotatorId,data:S.data,demo:S.demo}));}catch(e){}}
-function loadCache(){try{const c=JSON.parse(localStorage.getItem(CACHE_KEY)||"null");if(!c)return;if(c.annotatorId)S.annotatorId=c.annotatorId;if(c.data)Object.keys(c.data).forEach(k=>{if(S.data[k])S.data[k]=c.data[k];});if(c.demo)S.demo=c.demo;}catch(e){}}
+function saveCache(){try{localStorage.setItem(CACHE_KEY,JSON.stringify({annotatorId:S.annotatorId,data:S.data,demo:S.demo,pieceOrder:S.pieceOrder,perfOrder:S.perfOrder}));}catch(e){}}
+function loadCache(){try{const c=JSON.parse(localStorage.getItem(CACHE_KEY)||"null");if(!c)return;if(c.annotatorId)S.annotatorId=c.annotatorId;if(c.data)Object.keys(c.data).forEach(k=>{if(S.data[k])S.data[k]=c.data[k];});if(c.demo)S.demo=c.demo;if(c.pieceOrder)S.pieceOrder=c.pieceOrder;if(c.perfOrder)S.perfOrder=c.perfOrder;}catch(e){}}
+loadCache();
+
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function ensureOrder(){
+  const pieces=[...new Set(PERFORMANCES.map(p=>p.piece_id))];
+  if(!S.pieceOrder){S.pieceOrder=shuffle(pieces);saveCache();}
+  pieces.forEach(pid=>{
+    if(!S.perfOrder[pid]){
+      const ids=PERFORMANCES.filter(p=>p.piece_id===pid).map(p=>p.id);
+      S.perfOrder[pid]=shuffle(ids);saveCache();
+    }
+  });
+}
 loadCache();
 
 const app=document.getElementById("app"),whoLabel=document.getElementById("whoLabel");
@@ -227,7 +241,7 @@ function renderWelcome(){
         <input id="training" type="text" placeholder="e.g. Conservatoire diploma, Music degree, Private study" value="${d.training}" autocomplete="off">
       </div>
       <div style="display:flex;flex-direction:column;justify-content:flex-end">
-        <label class="lbl">Do you regularly teach beginners?</label>
+        <label class="lbl">Have you regularly taught beginners before?</label>
         <div class="row" style="margin-top:6px;gap:8px">
           <button class="btn ghost togbtn ${d.teachesBeginners==='yes'?'tog-on':''}" data-val="yes">Yes</button>
           <button class="btn ghost togbtn ${d.teachesBeginners==='no'?'tog-on':''}" data-val="no">No</button>
@@ -267,8 +281,8 @@ function statusOf(id){
   return{cls:"todo",txt:"not started"};
 }
 function renderDashboard(){
+  ensureOrder();
   const done=PERFORMANCES.filter(p=>statusOf(p.id).cls==="done").length;
-  const pieces=[...new Set(PERFORMANCES.map(p=>p.piece_id))];
   const stLabel={todo:"not started",active:"needs tags",done:"done ✓"};
   let html=`<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:4px">
     <h1>Performances</h1>
@@ -283,12 +297,13 @@ function renderDashboard(){
       <th class="col-header">Performance 3</th>
     </tr></thead>
     <tbody>`;
-  pieces.forEach(pid=>{
-    const group=PERFORMANCES.filter(p=>p.piece_id===pid);
-    html+=`<tr><th class="row-header">${group[0].piece}</th>`;
-    group.forEach((p)=>{
-      const st=statusOf(p.id),nm=S.data[p.id].marks.filter(m=>!m.deleted&&!m.trailing).length;
-      html+=`<td class="dcell"><div class="dcell-inner" data-id="${p.id}">
+  S.pieceOrder.forEach(pid=>{
+    const orderedIds=S.perfOrder[pid];
+    const pieceName=PERFORMANCES.find(p=>p.piece_id===pid).piece;
+    html+=`<tr><th class="row-header">${pieceName}</th>`;
+    orderedIds.forEach(id=>{
+      const st=statusOf(id),nm=S.data[id].marks.filter(m=>!m.deleted&&!m.trailing).length;
+      html+=`<td class="dcell"><div class="dcell-inner" data-id="${id}">
         <span class="badge ${st.cls}"><span class="bdot"></span>${stLabel[st.cls]}</span>
         <div class="dsub">${nm?nm+" stop"+(nm>1?"s":""):"—"}</div>
       </div></td>`;
