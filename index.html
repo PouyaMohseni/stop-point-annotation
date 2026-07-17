@@ -326,7 +326,7 @@ function renderDashboard(){
 function openWS(){
   S.screen="workspace";
   const d=S.data[S.currentId];
-  S.ws={phase:d.done?"tag":"play",playing:false,liveMarks:[],audio:null,_key:null};
+  S.ws={phase:d.done?"tag":"play",playing:false,liveMarks:[],audio:null,ctxAudio:null,_key:null,pendingIdx:null};
   render();
 }
 
@@ -388,7 +388,7 @@ function renderPlay(audioSrc){
   const drawChips=()=>{chips.innerHTML=S.ws.liveMarks.map(t=>`<span class="chip">${fmt(t)}</span>`).join("");};
   const doMark=()=>{if(!S.ws.playing)return;S.ws.liveMarks.push(+a.currentTime.toFixed(3));drawChips();markBtn.style.transform="scale(.93)";setTimeout(()=>markBtn.style.transform="",80);};
 
-  playBtn.onclick=()=>{a.play();S.ws.playing=true;playBtn.disabled=true;playBtn.textContent="listening…";markBtn.disabled=false;phint.textContent="No rewind. Mark as you go.";};
+  playBtn.onclick=()=>{stopAllAudio();a.play();S.ws.playing=true;playBtn.disabled=true;playBtn.textContent="listening…";markBtn.disabled=false;phint.textContent="No rewind. Mark as you go.";};
   markBtn.onclick=doMark;
   const kh=e=>{if(e.repeat)return;if(e.key==="s"||e.key==="S"||e.key==="Enter"){e.preventDefault();doMark();}};
   document.addEventListener("keydown",kh);S.ws._key=kh;
@@ -412,8 +412,10 @@ function renderTag(audioSrc){
   const marks=d.marks;
 
   // context audio player (shared, reused)
+  stopAllAudio();
   const ctxAudio=new Audio(audioSrc);
   ctxAudio.preload="auto";
+  S.ws.ctxAudio=ctxAudio;
 
   col.innerHTML=taxBar()+`
     <h2 style="margin-top:0">Label each stop</h2>
@@ -490,7 +492,7 @@ function renderTag(audioSrc){
   let activeIdx=null,stopTimer=null;
   function playSegment(audio,from,to,idx){
     clearTimeout(stopTimer);
-    audio.pause();
+    stopAllAudio();
     audio.currentTime=from;
     audio.play();
     activeIdx=idx;
@@ -521,7 +523,17 @@ function renderTag(audioSrc){
 }
 
 function teardown(){
-  if(S.ws){if(S.ws.audio){try{S.ws.audio.pause();}catch(e){}}if(S.ws._key)document.removeEventListener("keydown",S.ws._key);}
+  if(S.ws){
+    if(S.ws.audio){try{S.ws.audio.pause();}catch(e){}}
+    if(S.ws.ctxAudio){try{S.ws.ctxAudio.pause();}catch(e){}}
+    if(S.ws._key)document.removeEventListener("keydown",S.ws._key);
+  }
+}
+function stopAllAudio(){
+  if(S.ws){
+    if(S.ws.audio){try{S.ws.audio.pause();}catch(e){}}
+    if(S.ws.ctxAudio){try{S.ws.ctxAudio.pause();}catch(e){}}
+  }
 }
 
 /* ── EXPORT ── */
