@@ -341,8 +341,6 @@ function taxBar(){
 
 function renderWorkspace(){
   const id=S.currentId,p=perf(id),d=S.data[id];
-  const group=PERFORMANCES.filter(q=>q.piece_id===p.piece_id);
-  const pos=group.findIndex(q=>q.id===id)+1;
   const pages=SCORES[p.piece_id]||[];
   const scoreHtml=pages.length
     ?pages.map(src=>`<img src="${src}" alt="score" onerror="this.style.display='none'">`).join("")
@@ -350,7 +348,7 @@ function renderWorkspace(){
 
   app.innerHTML=`
   <div class="wshead">
-    <div><h1 style="margin-bottom:2px">${p.piece} — Performance ${pos}</h1></div>
+    <div><h1 style="margin-bottom:2px">${p.piece}</h1></div>
     <button class="btn ghost" id="backBtn">← back</button>
   </div>
   <div class="ws-layout">
