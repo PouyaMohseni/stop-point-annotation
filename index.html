@@ -113,6 +113,11 @@ input[type=number]:focus{outline:2px solid var(--red2);border-color:var(--red)}
 .ctx-fill{height:100%;width:0;background:var(--red)}
 .other-note{margin-top:4px}
 .banner{border:1px dashed var(--red);background:#f7e9e5;border-radius:8px;padding:10px 13px;font-size:13px}
+/* inline tag popup */
+.tagpopup{position:fixed;inset:0;background:rgba(35,32,27,.55);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px}
+.tagpopup-inner{background:var(--paper2);border:1px solid var(--line);border-radius:12px;padding:20px 22px;max-width:480px;width:100%;box-shadow:0 12px 40px -10px rgba(0,0,0,.35)}
+.tagpopup-head{font-family:var(--serif);font-size:16px;margin-bottom:4px}
+.tagpopup-sub{font-size:12px;color:var(--soft);margin-bottom:12px}
 .footnote{margin-top:28px;font-size:12px;color:var(--soft);border-top:1px solid var(--line);padding-top:12px}
 </style>
 </head>
@@ -363,7 +368,7 @@ function renderPlay(audioSrc){
   const col=document.getElementById("rightCol");
   const existing=col.querySelector(".taxbar");
   col.innerHTML=(existing?existing.outerHTML:taxBar())+`
-    <div class="banner">Single real-time listen — no rewind. Press <kbd>S</kbd> on your keyboard or click <b>STOP</b> using your mouse at the moment you would stop the student.</div>
+    <div class="banner">Single real-time listen — no rewind. Press <kbd>S</kbd> on your keyboard or click <b>STOP</b> using your mouse at the moment you would stop the student. You'll tag each stop right away, then continue listening.</div>
     <div class="transport">
       <div class="clock"><span id="cur">00:00.00</span> <span class="tot">/ <span id="tot">--:--</span></span></div>
       <div class="meter" id="meter"><div class="fill" id="fill"></div></div>
@@ -373,6 +378,17 @@ function renderPlay(audioSrc){
       <button class="markbtn" id="markBtn" disabled>STOP</button>
       <div class="chips" id="chips"></div>
       <div class="hint" id="phint">Press Start when ready.</div>
+    </div>
+    <div class="tagpopup" id="tagPopup" style="display:none">
+      <div class="tagpopup-inner">
+        <div class="tagpopup-head">Stop at <span id="tpTime"></span></div>
+        <div class="tagpopup-sub">What would you address with the student here? Select one or more.</div>
+        <div class="tagbtns" id="tpTagBtns"></div>
+        <div class="other-note" id="tpOtherWrap" style="display:none"><textarea id="tpNote" rows="2" placeholder="Describe the issue…"></textarea></div>
+        <div class="row" style="justify-content:flex-end;margin-top:14px">
+          <button class="btn" id="tpContinue">Continue listening</button>
+        </div>
+      </div>
     </div>`;
 
   const a=new Audio(audioSrc);a.preload="auto";S.ws.audio=a;
@@ -385,8 +401,46 @@ function renderPlay(audioSrc){
   a.addEventListener("timeupdate",()=>{cur.textContent=fmt(a.currentTime);if(a.duration)fill.style.width=(100*a.currentTime/a.duration)+"%";});
   a.addEventListener("error",()=>{phint.textContent="Audio not found: "+audioSrc;playBtn.disabled=true;});
 
-  const drawChips=()=>{chips.innerHTML=S.ws.liveMarks.map(t=>`<span class="chip">${fmt(t)}</span>`).join("");};
-  const doMark=()=>{if(!S.ws.playing)return;S.ws.liveMarks.push(+a.currentTime.toFixed(3));drawChips();markBtn.style.transform="scale(.93)";setTimeout(()=>markBtn.style.transform="",80);};
+  const tagLabel=k=>TAGS.find(t=>t.k===k).l;
+  const drawChips=()=>{chips.innerHTML=S.ws.liveMarks.map(m=>`<span class="chip">${fmt(m.t)}${m.tags.length?" · "+m.tags.map(tagLabel).join(", "):" · untagged"}</span>`).join("");};
+
+  const popup=document.getElementById("tagPopup"),tpTime=document.getElementById("tpTime"),
+        tpTagBtns=document.getElementById("tpTagBtns"),tpOtherWrap=document.getElementById("tpOtherWrap"),
+        tpNote=document.getElementById("tpNote"),tpContinue=document.getElementById("tpContinue");
+
+  function openTagPopup(idx){
+    const m=S.ws.liveMarks[idx];
+    tpTime.textContent=fmt(m.t);
+    tpNote.value=m.note||"";
+    const drawTagBtns=()=>{
+      tpTagBtns.innerHTML=TAGS.map(t=>`<button class="tbtn ${m.tags.includes(t.k)?"on":""}" data-t="${t.k}">${t.l}</button>`).join("");
+      tpTagBtns.querySelectorAll(".tbtn").forEach(b=>b.onclick=()=>{
+        const tk=b.dataset.t,i=m.tags.indexOf(tk);
+        if(i===-1)m.tags.push(tk);else m.tags.splice(i,1);
+        tpOtherWrap.style.display=m.tags.includes("other")?"block":"none";
+        drawTagBtns();drawChips();saveCache();
+      });
+    };
+    drawTagBtns();
+    tpOtherWrap.style.display=m.tags.includes("other")?"block":"none";
+    tpNote.oninput=()=>{m.note=tpNote.value;saveCache();};
+    popup.style.display="flex";
+    S.ws.pendingIdx=idx;
+  }
+
+  tpContinue.onclick=()=>{
+    popup.style.display="none";S.ws.pendingIdx=null;
+    stopAllAudio();a.play();S.ws.playing=true;markBtn.disabled=false;phint.textContent="No rewind. Mark as you go.";
+  };
+
+  const doMark=()=>{
+    if(!S.ws.playing)return;
+    a.pause();S.ws.playing=false;markBtn.disabled=true;
+    const t=+a.currentTime.toFixed(3);
+    const idx=S.ws.liveMarks.push({t,tags:[],note:""})-1;
+    drawChips();saveCache();
+    openTagPopup(idx);
+  };
 
   playBtn.onclick=()=>{stopAllAudio();a.play();S.ws.playing=true;playBtn.disabled=true;playBtn.textContent="listening…";markBtn.disabled=false;phint.textContent="No rewind. Mark as you go.";};
   markBtn.onclick=doMark;
@@ -397,7 +451,7 @@ function renderPlay(audioSrc){
     S.ws.playing=false;document.removeEventListener("keydown",kh);
     const d=S.data[S.currentId];
     const dur=a.duration||0;
-    d.marks=S.ws.liveMarks.map(t=>({t,tags:[],note:"",deleted:false,trailing:false}));
+    d.marks=S.ws.liveMarks.map(m=>({t:m.t,tags:[...m.tags],note:m.note||"",deleted:false,trailing:false}));
     // always add trailing segment from last mark (or 0) to end
     const lastT=d.marks.length?d.marks[d.marks.length-1].t:0;
     d.marks.push({t:dur,tags:[],note:"",deleted:false,trailing:true,fromT:lastT});
