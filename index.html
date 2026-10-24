@@ -114,7 +114,7 @@ input[type=number]:focus{outline:2px solid var(--red2);border-color:var(--red)}
 .other-note{margin-top:4px}
 .banner{border:1px dashed var(--red);background:#f7e9e5;border-radius:8px;padding:10px 13px;font-size:13px}
 /* inline tag popup */
-.tagpopup{position:fixed;inset:0;background:rgba(35,32,27,.55);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px}
+.tagpopup{position:fixed;inset:0;background:rgba(35,32,27,.55);display:flex;align-items:flex-start;justify-content:center;z-index:50;padding:14vh 20px 20px;overflow-y:auto}
 .tagpopup-inner{background:var(--paper2);border:1px solid var(--line);border-radius:12px;padding:20px 22px;max-width:480px;width:100%;box-shadow:0 12px 40px -10px rgba(0,0,0,.35)}
 .tagpopup-head{font-family:var(--serif);font-size:16px;margin-bottom:4px}
 .tagpopup-sub{font-size:12px;color:var(--soft);margin-bottom:12px}
@@ -284,12 +284,12 @@ function renderWelcome(){
 function statusOf(id){
   const d=S.data[id];
   if(d.done)return d.marks.filter(m=>!m.deleted&&!m.tags.length).length?{cls:"active",txt:"needs tags"}:{cls:"done",txt:"done ✓"};
+  if(d.started)return{cls:"active",txt:"in progress"};
   return{cls:"todo",txt:"not started"};
 }
 function renderDashboard(){
   ensureOrder();
   const done=PERFORMANCES.filter(p=>statusOf(p.id).cls==="done").length;
-  const stLabel={todo:"not started",active:"needs tags",done:"done ✓"};
   let html=`<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:4px">
     <h1>Performances</h1>
     <button class="btn ghost" id="backToProfile" style="font-size:13px">← Edit profile</button>
@@ -310,7 +310,7 @@ function renderDashboard(){
     orderedIds.forEach(id=>{
       const st=statusOf(id),nm=S.data[id].marks.filter(m=>!m.deleted&&!m.trailing).length;
       html+=`<td class="dcell"><div class="dcell-inner" data-id="${id}">
-        <span class="badge ${st.cls}"><span class="bdot"></span>${stLabel[st.cls]}</span>
+        <span class="badge ${st.cls}"><span class="bdot"></span>${st.txt}</span>
         <div class="dsub">${nm?nm+" stop"+(nm>1?"s":""):"—"}</div>
       </div></td>`;
     });
@@ -396,8 +396,21 @@ function renderPlay(audioSrc){
         playBtn=document.getElementById("playBtn"),markBtn=document.getElementById("markBtn"),
         phint=document.getElementById("phint");
 
-  a.addEventListener("loadedmetadata",()=>{tot.textContent=fmt(a.duration);});
-  a.addEventListener("timeupdate",()=>{cur.textContent=fmt(a.currentTime);if(a.duration)fill.style.width=(100*a.currentTime/a.duration)+"%";});
+  // stops and playback position are persisted as they happen, so leaving mid-listen
+  // resumes from the same point instead of discarding marks or allowing a second listen
+  const d=S.data[S.currentId];
+  S.ws.liveMarks=d.marks;
+  const resumeAt=d.started?(d.pos||0):0;
+  if(d.started){
+    playBtn.textContent="▶ Resume";playBtn.disabled=true;
+    phint.textContent=`You left this performance at ${fmt(resumeAt)}. It continues from there (no rewind).`;
+  }
+  let lastSave=0;
+  a.addEventListener("loadedmetadata",()=>{tot.textContent=fmt(a.duration);if(d.started){if(resumeAt)a.currentTime=resumeAt;playBtn.disabled=false;}});
+  a.addEventListener("timeupdate",()=>{
+    cur.textContent=fmt(a.currentTime);if(a.duration)fill.style.width=(100*a.currentTime/a.duration)+"%";
+    if(S.ws.playing&&a.currentTime>(d.pos||0)){d.pos=a.currentTime;if(Date.now()-lastSave>1000){lastSave=Date.now();saveCache();}}
+  });
   a.addEventListener("error",()=>{phint.textContent="Audio not found: "+audioSrc;playBtn.disabled=true;});
 
   const tagLabel=k=>TAGS.find(t=>t.k===k).l;
@@ -429,26 +442,31 @@ function renderPlay(audioSrc){
 
   tpContinue.onclick=()=>{
     popup.style.display="none";S.ws.pendingIdx=null;
-    stopAllAudio();a.play();S.ws.playing=true;markBtn.disabled=false;phint.textContent="No rewind. Mark as you go.";
+    stopAllAudio();a.play().catch(()=>{});S.ws.playing=true;markBtn.disabled=false;phint.textContent="No rewind. Mark as you go.";
   };
 
   const doMark=()=>{
     if(!S.ws.playing)return;
     a.pause();S.ws.playing=false;markBtn.disabled=true;
     const t=+a.currentTime.toFixed(3);
-    const idx=S.ws.liveMarks.push({t,tags:[],note:""})-1;
+    const idx=S.ws.liveMarks.push({t,tags:[],note:"",deleted:false,trailing:false})-1;
+    d.pos=Math.max(d.pos||0,t);
     drawChips();saveCache();
     openTagPopup(idx);
   };
 
-  playBtn.onclick=()=>{stopAllAudio();a.play();S.ws.playing=true;playBtn.disabled=true;playBtn.textContent="listening…";markBtn.disabled=false;phint.textContent="No rewind. Mark as you go.";};
+  drawChips();
+  playBtn.onclick=()=>{d.started=true;saveCache();stopAllAudio();a.play().catch(()=>{});S.ws.playing=true;playBtn.disabled=true;playBtn.textContent="listening…";markBtn.disabled=false;phint.textContent="No rewind. Mark as you go.";};
   markBtn.onclick=doMark;
-  const kh=e=>{if(e.repeat)return;if(e.key==="s"||e.key==="S"||e.key==="Enter"){e.preventDefault();doMark();}};
+  const kh=e=>{
+    if(e.repeat||!S.ws.playing)return;
+    if(e.target.closest&&e.target.closest("input,textarea,select,[contenteditable]"))return; // let typing through
+    if(e.key==="s"||e.key==="S"||e.key==="Enter"){e.preventDefault();doMark();}
+  };
   document.addEventListener("keydown",kh);S.ws._key=kh;
 
   a.addEventListener("ended",()=>{
     S.ws.playing=false;document.removeEventListener("keydown",kh);
-    const d=S.data[S.currentId];
     const dur=a.duration||0;
     d.marks=S.ws.liveMarks.map(m=>({t:m.t,tags:[...m.tags],note:m.note||"",deleted:false,trailing:false}));
     // always add trailing segment from last mark (or 0) to end
@@ -560,7 +578,7 @@ function renderTag(audioSrc){
     const cur=document.getElementById("ctxcur"+activeIdx);
     const m=marks[activeIdx];
     if(!fill||!m)return;
-    const from=activeIdx>0?marks.slice(0,activeIdx).filter(x=>!x.deleted).map(x=>x.t).pop()||0:0;
+    const from=m.trailing?(m.fromT||0):(marks.slice(0,activeIdx).filter(x=>!x.deleted&&!x.trailing).map(x=>x.t).pop()||0);
     const span=m.t-from;
     if(span>0)fill.style.width=(Math.min(1,(ctxAudio.currentTime-from)/span)*100)+"%";
     if(cur)cur.textContent=fmt(ctxAudio.currentTime);
@@ -600,7 +618,8 @@ function exportData(){
 }
 const stamp=()=>new Date().toISOString().replace(/[:.]/g,"-").slice(0,19);
 function dl(name,text,type){const b=new Blob([text],{type}),u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1500);}
-window.addEventListener("beforeunload",e=>{if(Object.values(S.data).some(d=>d.done)){e.preventDefault();e.returnValue="";}});
+window.addEventListener("pagehide",()=>{const a=S.ws&&S.ws.audio,d=S.data[S.currentId];if(a&&d&&d.started&&!d.done&&a.currentTime>(d.pos||0)){d.pos=a.currentTime;saveCache();}});
+window.addEventListener("beforeunload",e=>{if(Object.values(S.data).some(d=>d.done||d.started)){e.preventDefault();e.returnValue="";}});
 render();
 </script>
 </body>
