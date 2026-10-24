@@ -190,13 +190,14 @@ loadCache();
 function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function ensureOrder(){
   const pieces=[...new Set(PERFORMANCES.map(p=>p.piece_id))];
-  if(!S.pieceOrder){S.pieceOrder=shuffle(pieces);saveCache();}
+  // repair cached orders: drop ids no longer in PERFORMANCES (e.g. swapped recordings), append new ones
+  const fix=(saved,valid)=>{const kept=(saved||[]).filter(x=>valid.includes(x));return kept.concat(shuffle(valid.filter(x=>!kept.includes(x))));};
+  S.pieceOrder=fix(S.pieceOrder,pieces);
   pieces.forEach(pid=>{
-    if(!S.perfOrder[pid]){
-      const ids=PERFORMANCES.filter(p=>p.piece_id===pid).map(p=>p.id);
-      S.perfOrder[pid]=shuffle(ids);saveCache();
-    }
+    const ids=PERFORMANCES.filter(p=>p.piece_id===pid).map(p=>p.id);
+    S.perfOrder[pid]=fix(S.perfOrder[pid],ids);
   });
+  saveCache();
 }
 loadCache();
 
