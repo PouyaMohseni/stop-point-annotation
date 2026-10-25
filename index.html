@@ -142,6 +142,7 @@ const TAGS = [
   {k:"other",     l:"Other",          d:""}
 ];
 const TAX_CITE = "Pitch, Rhythm, Dynamics, Structure: Morsi et al. (SMC 2024). Technique, Interpretation: Palmer & van de Sande (1993).";
+const DATA_CITE = `Recordings and scores: Y. Jiang, <a href="https://doi.org/10.5281/zenodo.8392772" target="_blank" rel="noopener">Expert and Novice Evaluations of Piano Performances</a> (2023), licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a>. Audio files renamed; score images rendered from the dataset's MusicXML.`;
 
 const SCORES = {
   1: ["scores/CarelessLove-1.png"],
@@ -256,7 +257,8 @@ function renderWelcome(){
     </div>
     <div id="errMsg" style="color:var(--red);font-size:13px;display:none">Please fill in all fields before continuing.</div>
     <div style="display:flex;justify-content:flex-end;margin-top:24px"><button class="btn" id="startBtn">Go to performances</button></div>
-  </div>`;
+  </div>
+  <div class="cite" style="margin-top:14px">${DATA_CITE}</div>`;
 
   document.querySelectorAll(".togbtn").forEach(b=>b.onclick=()=>{
     S.demo.teachesBeginners=b.dataset.val; saveCache();

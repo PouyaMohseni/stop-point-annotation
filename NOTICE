@@ -1,0 +1,19 @@
+Third-party data
+================
+
+The files in audio/ and scores/ are derived from:
+
+  Yucong Jiang. "Expert and Novice Evaluations of Piano Performances" (v1), 2023.
+  Zenodo. https://doi.org/10.5281/zenodo.8392772
+
+which is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0
+International License (CC BY-NC-SA 4.0): https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+Changes made:
+  - audio/: 21 of the 83 WAV recordings, renamed to P<piece>_R<recording>.wav
+    (piece numbers: 1 Careless Love, 2 Cielito Lindo, 3 Lavender's Blue, 4 Over the Waves,
+    5 She Wore a Yellow Ribbon, 6 The Blues, 7 The Entertainer).
+  - scores/: PNG page images rendered with MuseScore from the dataset's MusicXML scores.
+
+These derived files are distributed under the same license, CC BY-NC-SA 4.0.
+They may not be used for commercial purposes.
